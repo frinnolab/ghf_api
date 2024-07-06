@@ -1,0 +1,51 @@
+@baseUrl = http://localhost:8000/api/v1
+@profiles = /profiles-roles
+@token = ""
+#signup
+
+#GET ALL
+# GET {{baseUrl}}{{profiles}}
+# Accept: application/json
+# Content-Type: application/json
+
+#GET SINGLE
+# GET {{baseUrl}}{{profiles}}/4ec4e81c-8ca0-4081-813c-d02a35ad27ca
+# Accept: application/json
+# Content-Type: application/json
+
+#POST
+# POST {{baseUrl}}{{profiles}}
+# Accept: application/json
+# Content-Type: application/json
+
+# {
+#     "creatorProfileId":"4ec4e81c-8ca0-4081-813c-d02a35ad27ca",
+#     "email":"dev.frinno@gmail.com",
+#     "firstname":"",
+#     "lastname":"",
+#     "position":"",
+#     "mobile":"",
+#     "roleType":"0",
+# }
+
+
+#UPDATE
+# PUT {{baseUrl}}{{profiles}}/4ec4e81c-8ca0-4081-813c-d02a35ad27ca
+# Accept: application/json
+# Content-Type: application/json
+
+# {
+#     "profileId":"4ec4e81c-8ca0-4081-813c-d02a35ad27ca",
+#     "email":"dev.frinno@gmail.com",
+#     "firstname":"",
+#     "lastname":"",
+#     "position":"",
+#     "mobile":"",
+#     "password":""
+# }
+
+#DELETE
+# DELETE {{baseUrl}}{{profiles}}/4ec4e81c-8ca0-4081-813c-d02a35ad27ca
+# Accept: application/json
+# Content-Type: application/json
+
