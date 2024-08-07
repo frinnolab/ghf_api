@@ -2,11 +2,14 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\ImpactsController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfileRolesController;
 use App\Http\Controllers\ProgrammesController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\TeamController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -114,6 +117,54 @@ Route::prefix('v1')->group(function () {
             Route::post('/', 'store')->middleware('auth:sanctum');
             Route::put('/{authorId}/{blogId}', 'update')->middleware('auth:sanctum');
             Route::delete('/{blogId}', 'destroy')->middleware('auth:sanctum');
+        });
+    });
+
+    //Blogs
+    Route::prefix('teams')->group(function () {
+        Route::controller(TeamController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::get('/{teamId}', 'show');
+            Route::post('/', 'store')->middleware('auth:sanctum');
+            Route::put('/{teamId}', 'update')->middleware('auth:sanctum');
+            Route::delete('/{teamId}', 'destroy')->middleware('auth:sanctum');
+            
+            //Team Members
+            Route::get('/members/{teamId}', 'getTeamMembers');
+            Route::get('/members/{teamId}/{memberId}', 'getTeamMember');
+            Route::post('/members', 'addMemberToTeam')->middleware('auth:sanctum');
+            Route::put('/members', 'updateMemberToTeam')->middleware('auth:sanctum');
+            Route::delete('/members/removeMemberToTeam', 'destroy')->middleware('auth:sanctum');
+        });
+    });
+
+
+    //Settings
+    Route::prefix('settings')->group(function () {
+        Route::controller(SettingsController::class)->group(function () {
+            Route::get('/companyinfo', 'companyInfoIndex');
+            Route::get('/summaryinfo', 'summaryInfoIndex');
+            Route::put('/{adminId}/companyinfo', 'companyInfoCreate')->middleware('auth:sanctum');
+            // Route::delete('/{blogId}', 'destroy')->middleware('auth:sanctum');
+        });
+    });
+
+
+    //Impacts
+    Route::prefix('impacts')->group(function () {
+        Route::controller(ImpactsController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::get('/{impactId}', 'show');
+            Route::post('/', 'store');//->middleware('auth:sanctum');
+            Route::put('/{impactId}', 'update');//->middleware('auth:sanctum');
+            Route::delete('/{impactId}', 'destroy');//->middleware('auth:sanctum');
+
+            
+            // Route::get('/assets', 'index');
+            // Route::get('/assets/{assetId}', 'show');
+            // Route::post('/assets', 'store');//->middleware('auth:sanctum');
+            // Route::put('/assets{impactId}', 'update');//->middleware('auth:sanctum');
+            // Route::delete('assets/{impactId}', 'destroy');//->middleware('auth:sanctum');
         });
     });
 });

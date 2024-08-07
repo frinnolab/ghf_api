@@ -22,8 +22,8 @@ return new class extends Migration
         //     $table->softDeletes();
         // });
         Schema::table('profiles', function (Blueprint $table) {
-            $table->string('lastname')->default('');
-            $table->string('position')->default('');
+            $table->renameColumn('profile_pic_url','avatar_url')->nullable();
+            // $table->string('position')->default('');
         });
     }
 

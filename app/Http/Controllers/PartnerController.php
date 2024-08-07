@@ -7,6 +7,7 @@ use App\Models\Partners\PartnerType;
 use App\Models\Profiles\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class PartnerController extends Controller
 {
@@ -22,7 +23,25 @@ class PartnerController extends Controller
         if ($partners == null) {
             return response([], Response::HTTP_NO_CONTENT);
         }
-        $response = [$partners];
+
+
+        $response = [];
+
+        foreach ($partners as $partner) {
+            $imgUrl = null;
+            if ($partner->thumbnail_url != '' or $partner->logo_url != null) {
+                $imgUrl = asset(Storage::url($partner->logo_url));
+            }
+            $data = [
+                'partnerId' => $partner->partner_id,
+                'name' => $partner->name,
+                'type' => $partner->type,
+                'logoUrl' => $imgUrl,
+                'description' => $partner->description,
+            ];
+
+            array_push($response, $data);
+        }
 
         return response($response, Response::HTTP_OK);
     }
@@ -45,23 +64,51 @@ class PartnerController extends Controller
 
         $creatorRoleType = $creatorProfile->roleType;
 
-        if ($creatorRoleType != -1 || $creatorRoleType != 1) {
-            return response("", Response::HTTP_UNAUTHORIZED);
+        // if ($creatorRoleType != -1 || $creatorRoleType != 1) {
+        //     return response("", Response::HTTP_UNAUTHORIZED);
+        // }
+
+
+        switch ($creatorRoleType) {
+            case -1:
+                # code...
+                break;
+            case 1:
+                # code...
+                break;
+
+            default:
+                # code...
+                return response("", Response::HTTP_UNAUTHORIZED);
+                //break;
         }
 
-        $partnerType = PartnerType::where('type','=', $request->input('type'))->first();
-        
+        $partnerType = PartnerType::where('type', '=', $request->input('type'))->first();
+
+        $path = null;
+        $file = null;
+
+        if ($request->input('image')) {
+
+            $file = $request->file('image');
+            if (!$file->isValid()) {
+                return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $path = Storage::putFile('public/partner_assets', $file);
+        }
+
         $newPartner = new Partner([
-            'logo_url'=>'',
-            'name'=>$request->input('name'),
-            'description'=>$request->input('description'),
-            'type'=>$partnerType->type,
+            'logo_url' => $path ?? '',
+            'name' => $request->input('name') ?? null,
+            'description' => $request->input('description') ?? null,
+            'type' => $partnerType->type ?? null,
         ]);
 
         $newPartner->save();
 
         return response([
-            'partnerId'=>$newPartner->partner_id
+            'partnerId' => $newPartner->partner_id
         ], Response::HTTP_CREATED);
     }
 
@@ -71,13 +118,27 @@ class PartnerController extends Controller
     public function show(string $partnerId)
     {
         //
-        $partner = Partner::where('partner_id','=', $partnerId)->first();
+        $partner = Partner::where('partner_id', '=', $partnerId)->first();
 
-        if(!$partner){
+        if (!$partner) {
             return response([], Response::HTTP_NOT_FOUND);
         }
 
-        return response([$partner], Response::HTTP_OK);
+        $imgUrl = null;
+        if ($partner->logo_url != null || $partner->logo_url != '') {
+
+            $imgUrl = asset(Storage::url($partner->logo_url));
+        }
+
+        $response = [
+            "partnerId"=>$partner->partner_id,
+            "logoUrl"=>$partner->imgUrl,
+            "name"=>$partner->name,
+            "descriprion"=>$partner->descriprion,
+            "type"=>$partner->type,
+        ];
+
+        return response($response, Response::HTTP_OK);
     }
 
     /**
@@ -97,9 +158,18 @@ class PartnerController extends Controller
         }
 
         $creatorRoleType = $creatorProfile->roleType;
+        switch ($creatorRoleType) {
+            case -1:
+                # code...
+                break;
+            case 1:
+                # code...
+                break;
 
-        if ($creatorRoleType != -1 || $creatorRoleType != 1) {
-            return response("", Response::HTTP_UNAUTHORIZED);
+            default:
+                # code...
+                return response("", Response::HTTP_UNAUTHORIZED);
+                //break;
         }
         //
         $partner = Partner::where('partner_id', '=', $partnerId)->first();
@@ -108,13 +178,26 @@ class PartnerController extends Controller
             return response([], Response::HTTP_NOT_FOUND);
         }
 
-        $partnerType = PartnerType::where('type','=', $request->input('type'))->first();
+        $partnerType = PartnerType::where('type', '=', $request->input('type'))->first();
 
-        $partner->logo_url = '' ?? $partner->logo_url;
+        $path = '';
+        $file = null;
+
+        if ($request->input('image')) {
+
+            $file = $request->file('image');
+            if (!$file->isValid()) {
+                return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $path = Storage::putFile('public/blog_assets', $file);
+        }
+
+        $partner->logo_url = $path ?? $partner->logo_url;
         $partner->name = $request->input('name') ?? $partner->name;
         $partner->description = $request->input('description') ?? $partner->description;
         $partner->type = $partnerType->type ?? $partner->type;
-        
+
         $partner->save();
     }
 

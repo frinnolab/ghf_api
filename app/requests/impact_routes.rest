@@ -1,0 +1,27 @@
+@api=http://127.0.0.1:8000/api/v1/impacts
+
+#all
+# GET {{api}} HTTP/1.1
+# Accept: application/json,
+# Content-Type: application/json
+
+#single
+# GET {{api}}/123 HTTP/1.1
+# Accept: application/json,
+# Content-Type: application/json
+
+
+#Add
+POST {{api}} HTTP/1.1
+Accept: application/json
+Content-Type: application/json
+
+{
+  "title": "test title",
+  "description": "string",
+  "schoolName": "string",
+  "schoolRegion": "string",
+  "schoolDistrict": "string",
+  "studentGirls": "3",
+  "studentBoys": "0",
+}

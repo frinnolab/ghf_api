@@ -15,9 +15,11 @@ class Profile extends Model
     protected $primaryKey = 'profile_id';
 
     protected $fillable = [
+        'avatar_url',
         'firstname',
         'email',
         'hashed_password',
+        'position',
         'mobile',
         'roleType',
     ];

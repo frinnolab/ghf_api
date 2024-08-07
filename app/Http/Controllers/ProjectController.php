@@ -8,6 +8,8 @@ use App\Models\Projects\Project;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ProjectController extends Controller
 {
@@ -25,20 +27,26 @@ class ProjectController extends Controller
         }
         $response = [];
 
-        
+
         foreach ($projects as $project) {
+            $path = null;
+            if($project->thumbnail_url != null || $project->thumbnail_url != ''){
+
+                $path = asset(Storage::url($project->thumbnail_url));
+            }
             $data = [
                 'projectId' => $project->project_id,
                 'programmeId' => $project->programme_id,
-                'name' => $project->name,
+                'thumbnailUrl' =>  $path ?? null,
+                'title' => $project->title,
                 'description' => $project->description,
                 'status' => $project->status,
                 'regionsReached' => $project->regions_reached,
                 'districtsReached' => $project->districts_reached,
                 'schoolsReached' => $project->schools_reached,
                 'studentsReached' => $project->students_reached,
-                'dateStart' => $project->districts_reached,
-                'dateEnd' => $project->districts_reached,
+                'dateStart' => $project->date_start ?? null,
+                'dateEnd' => $project->date_end ?? null,
                 'publisherId' => $project->publisher_profile_id,
             ];
 
@@ -64,31 +72,59 @@ class ProjectController extends Controller
             return response("Profile not found!.", Response::HTTP_NOT_FOUND);
         }
 
-        $creatorRoleType = $creatorProfile->roleType;
+        $creatorRoleType = intval($creatorProfile->roleType);
 
-        if ($creatorRoleType != -1 || $creatorRoleType != 1) {
-            return response("", Response::HTTP_UNAUTHORIZED);
+        switch ($creatorRoleType) {
+            case -1:
+                # code...
+                break;
+            case 1:
+                # code...
+                break;
+
+            default:
+                # code...
+                return response("", Response::HTTP_UNAUTHORIZED);
+                //break;
         }
 
-        $programme = Programmes::first();
+        $programme =  DB::table('programs')->first();
+
+        $path = '';
+        $file = null;
+
+        if ($request->input('image')) {
+            $file = $request->file('image');
+            if (!$file->isValid()) {
+                return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $path = Storage::putFile('public/project_assets', $file);
+        }
+
+
+
+
 
         $newProject = new Project([
-            'programme_id'=> $programme->programme_id,
-            'publisher_profile_id'=> $creatorProfile->profile_id,
-            'title'=> $request->input('title'),
-            'description'=> $request->input('description'),
-            'regions_reached'=> $request->input('regionsReached'),
-            'districts_reached'=> $request->input('districtsReached'),
-            'schools_reached'=> $request->input('schoolsReached'),
-            'students_reached'=> $request->input('studentsReached'),
-            'date_start'=> $request->input('dateStart'),
-            'date_end'=> $request->input('dateEnd'),
+            'programme_id' => $programme->programme_id ?? null,
+            'publisher_profile_id' => $creatorProfile->profile_id,
+            'thumbnail_url' => $path ?? null,
+            'title' => $request->input('title'),
+            'status' => intval($request->input('status')) ,
+            'description' => $request->input('description'),
+            'regions_reached' => intval($request->input('regionsReached')) ,
+            'districts_reached' => intval($request->input('districtsReached')) ,
+            'schools_reached' => intval($request->input('schoolsReached')) ,
+            'students_reached' => intval($request->input('studentsReached')) ,
+            'date_start' => $request->input('dateStart') ?? null,
+            'date_end' => $request->input('dateEnd') ?? null,
         ]);
 
         $newProject->save();
 
         $response = [
-            'projectId'=>$newProject->project_id
+            'projectId' => $newProject->project_id
         ];
 
         return response($response, Response::HTTP_CREATED);
@@ -100,13 +136,35 @@ class ProjectController extends Controller
     public function show(string $projectId)
     {
         //
-        $project = Project::where('project_id','=', $projectId)->first();
+        $project = Project::where('project_id', '=', $projectId)->first();
 
-        if(!$project){
+        if (!$project) {
             return response([], Response::HTTP_NOT_FOUND);
         }
 
-        return response([$project], Response::HTTP_OK);
+        $path = null;
+        if($project->thumbnail_url != null || $project->thumbnail_url != ''){
+
+            $path = asset(Storage::url($project->thumbnail_url));
+        }
+
+        $response = [
+            "projectId" => $project->project_id,
+            "thumbnailUrl" => $path,
+            "title" => $project->title,
+            "description" => $project->description,
+            "regionsReached" => $project->regions_reached,
+            "districtsReached" => $project->districts_reached,
+            "schoolsReached" => $project->schools_reached,
+            "studentsReached" => $project->students_reached,
+            "status" => $project->status,
+            "dateStart" => $project->date_start,
+            "dateEnd" => $project->date_end,
+            "publisherId" => $project->publisher_profile_id,
+            "programmeId" => $project->programme_id,
+        ];
+
+        return response($response, Response::HTTP_OK);
     }
 
     /**
@@ -125,11 +183,37 @@ class ProjectController extends Controller
             return response("Profile not found!.", Response::HTTP_NOT_FOUND);
         }
 
-        $creatorRoleType = $creatorProfile->roleType;
+        $creatorRoleType = intval($creatorProfile->roleType);
 
-        if ($creatorRoleType != -1 || $creatorRoleType != 1) {
-            return response("", Response::HTTP_UNAUTHORIZED);
+        switch ($creatorRoleType) {
+            case -1:
+                # code...
+                break;
+            case 1:
+                # code...
+                break;
+
+            default:
+                # code...
+                return response("", Response::HTTP_UNAUTHORIZED);
+                //break;
         }
+
+
+        $path = '';
+        $file = null;
+
+        if ($request->input('image')) {
+
+            $file = $request->file('image');
+
+            if (!$file->isValid()) {
+                return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $path = Storage::putFile('public/project_assets', $file);
+        }
+
         //
         $project = Project::where('project_id', '=', $projectId)->first();
 
@@ -139,14 +223,16 @@ class ProjectController extends Controller
 
         $project->programme_id = $project->programme_id;
         $project->publisher_profile_id = $creatorProfile->profile_id ?? $project->publisher_profile_id;
+        $project->thumbnail_url = $path ?? $project->thumbnail_url ?? null;
         $project->title = $request->input('title') ?? $project->title;
         $project->description = $request->input('description') ?? $project->description;
-        $project->regions_reached = $request->input('regionsReached') ?? $project->regions_reached;
-        $project->districts_reached = $request->input('districtsReached') ?? $project->districts_reached;
-        $project->schools_reached = $request->input('schoolsReached') ?? $project->schools_reached;
-        $project->students_reached = $request->input('studentsReached') ?? $project->students_reached;
-        $project->date_start = $request->input('dateStart') ?? $project->date_start;
-        $project->date_end =  $request->input('dateEnd') ?? $project->date_end;
+        $project->regions_reached = intval($request->input('regionsReached'))  ?? $project->regions_reached;
+        $project->districts_reached = intval($request->input('districtsReached'))  ?? $project->districts_reached;
+        $project->schools_reached = intval($request->input('schoolsReached'))  ?? $project->schools_reached;
+        $project->students_reached = intval($request->input('studentsReached'))  ?? $project->students_reached;
+        $project->date_start = $request->input('dateStart') ?? $project->date_start ?? null;
+        $project->date_end =  $request->input('dateEnd') ?? $project->date_end ?? null;
+        $project->status = intval($request->input('status'))  ?? $project->status;
 
         $project->save();
 
@@ -167,6 +253,6 @@ class ProjectController extends Controller
 
         $project->delete();
 
-        return response([],Response::HTTP_OK);
+        return response([], Response::HTTP_OK);
     }
 }

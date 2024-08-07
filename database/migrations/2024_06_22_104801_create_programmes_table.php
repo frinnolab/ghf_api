@@ -23,11 +23,17 @@ return new class extends Migration
         //     $table->timestamps();
         // });
 
-        Schema::table('programmes', function (Blueprint $table) {
-            $table->dropColumn('regions_reached');
-            $table->dropColumn('districts_reached');
-            $table->dropColumn('schools_reached');
-            $table->dropColumn('students_reached');
+        // Schema::table('programmes', function (Blueprint $table) {
+        //     $table->dropColumn('regions_reached');
+        //     $table->dropColumn('districts_reached');
+        //     $table->dropColumn('schools_reached');
+        //     $table->dropColumn('students_reached');
+        // });
+
+
+        Schema::table('programs', function (Blueprint $table) {
+            $table->renameColumn('name',"title");
+            $table->string('thumbnail_url');
         });
     }
 

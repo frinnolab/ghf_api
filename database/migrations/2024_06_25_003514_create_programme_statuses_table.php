@@ -16,13 +16,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('programme_statuses', function (Blueprint $table) {
-            $table->uuid('status_id')->primary();
-            $table->string('name')->default('');
-            $table->integer('type')->default(0);
-            $table->timestamps();
-            $table->softDeletes();
-        });
+        // Schema::create('programme_statuses', function (Blueprint $table) {
+        //     $table->uuid('status_id')->primary();
+        //     $table->string('name')->default('');
+        //     $table->integer('type')->default(0);
+        //     $table->timestamps();
+        //     $table->softDeletes();
+        // });
+
+        Schema::rename('programme_statuses', 'project_status');
+        
+        // Schema::table('programme_statuses', function (Blueprint $table) {
+        //     $table->uuid('status_id')->primary();
+        //     $table->string('name')->default('');
+        //     $table->integer('type')->default(0);
+        //     $table->timestamps();
+        //     $table->softDeletes();
+        // });
     }
 
     /**
@@ -30,6 +40,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('programme_statuses');
+        //Schema::dropIfExists('programme_statuses');
     }
 };

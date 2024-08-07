@@ -4,9 +4,9 @@
 #signup
 
 #GET ALL
-# GET {{baseUrl}}{{profiles}}
-# Accept: application/json
-# Content-Type: application/json
+GET {{baseUrl}}{{profiles}}
+Accept: application/json
+Content-Type: application/json
 
 #GET SINGLE
 # GET {{baseUrl}}{{profiles}}/4ec4e81c-8ca0-4081-813c-d02a35ad27ca

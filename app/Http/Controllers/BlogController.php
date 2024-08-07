@@ -24,8 +24,13 @@ class BlogController extends Controller
 
         $response = [];
 
+
+
         foreach ($blogs as $blog) {
-            $imgUrl = asset($blog->thumbnail_url);
+            $imgUrl = null;
+            if ($blog->thumbnail_url != '' or $blog->thumbnail_url != null) {
+                $imgUrl = asset(Storage::url($blog->thumbnail_url));
+            }
             $data = [
                 'blogId' => $blog->blog_id,
                 'title' => $blog->title,
@@ -56,19 +61,34 @@ class BlogController extends Controller
             return response("Profile not found!.", Response::HTTP_NOT_FOUND);
         }
 
-        // $authorRoleType = $authorProfile->roleType;
+        $authorRoleType = $authorProfile->roleType;
 
-        // if ( intval($authorRoleType)  != -1 || intval($authorRoleType) != 1) {
-        //     return response([], Response::HTTP_UNAUTHORIZED);
-        // }
+        switch ($authorRoleType) {
+            case -1:
+                # code...
+                break;
+            case 1:
+                # code...
+                break;
 
-        $file = $request->file('image');
-        if (!$file->isValid()) {
-            return response()->json(['invalid_file_upload'], 400);
+            default:
+                # code...
+                return response("", Response::HTTP_UNAUTHORIZED);
+                //break;
         }
 
-        $path = Storage::putFile('public/blog_assets', $file);
+        $path = '';
+        $file = null;
 
+        if ($request->input('image')) {
+
+            $file = $request->file('image');
+            if (!$file->isValid()) {
+                return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $path = Storage::putFile('public/blog_assets', $file);
+        }
 
         $blog = new Blog([
             'thumbnail_url' => $path,
@@ -98,7 +118,12 @@ class BlogController extends Controller
             return response([], Response::HTTP_NOT_FOUND);
         }
 
-        $imgUrl = asset($blog->thumbnail_url);
+        $imgUrl = null;
+        if ($blog->thumbnail_url != null || $blog->thumbnail_url != '') {
+
+            $imgUrl = asset(Storage::url($blog->thumbnail_url));
+        }
+
 
         $response = [
             "blogId" => $blog->blog_id,
@@ -117,13 +142,6 @@ class BlogController extends Controller
     {
         //
 
-        // if($blogId){
-        //     return response([
-        //         "authorId"=>$authorId,
-        //         "blogId"=>$blogId
-        //     ]);
-        // }
-
         $authorProfile = Profile::where('profile_id', '=', $authorId)->first();
 
 
@@ -134,8 +152,18 @@ class BlogController extends Controller
 
         $authorRoleType = intval($authorProfile->roleType);
 
-        if($authorRoleType == 0){
-            return response("", Response::HTTP_UNAUTHORIZED);
+        switch ($authorRoleType) {
+            case -1:
+                # code...
+                break;
+            case 1:
+                # code...
+                break;
+
+            default:
+                # code...
+                return response("", Response::HTTP_UNAUTHORIZED);
+                //break;
         }
 
         $blog = Blog::where('blog_id', '=', $blogId)->first();
@@ -144,18 +172,24 @@ class BlogController extends Controller
             return response([], Response::HTTP_NOT_FOUND);
         }
 
-        $file = $request->file('image');
+        $path = '';
+        $file = null;
 
-        if (!$file->isValid()) {
-            return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+        if ($request->input('image')) {
+
+            $file = $request->file('image');
+            if (!$file->isValid()) {
+                return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $path = Storage::putFile('public/blog_assets', $file);
         }
 
-        $path = Storage::putFile('public', $file);
 
-        $blog->title = $request->input('title');
-        $blog->description = $request->input('description');
-        $blog->author_id = $authorProfile->profile_id;
-        $blog->thumbnail_url = $path;
+        $blog->title = $request->input('title') ?? $blog->title;
+        $blog->description = $request->input('description') ?? $blog->description;
+        $blog->author_id = $authorProfile->profile_id ?? $blog->author_id;
+        $blog->thumbnail_url = $path ?? $blog->thumbnail_url;
         $blog->save();
 
         $response = [

@@ -6,6 +6,7 @@ use App\Models\Profiles\Profile;
 use App\Models\Profiles\ProfileRoles;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -17,29 +18,20 @@ class ProfileController extends Controller
         //
         $profiles = Profile::all();
 
-        // //Query by email
-        // if($request->query('email')){
-        //     response([
-        //         'withEmail'=>$request->query('email')
-        //     ],200);
-        //     $profiles = $profiles->where('email','=',$request->query('email'));
-        // }
-
-        // //Query by Position
-        // if($request->query('position')){
-        //     $profiles = $profiles->where('position','=',$request->query('position'));
-        // }
-
-        
-        if($profiles == null){
+        if ($profiles == null) {
             return response([], Response::HTTP_NO_CONTENT);
         }
         $response = [];
 
 
         foreach ($profiles as $profile) {
+            $imgUrl = null;
+            if ($profile->avatar_url != '' or $profile->avatar_url != null) {
+                $imgUrl = asset(Storage::url($profile->avatar_url));
+            }
             $data = [
                 'profileId' => $profile->profile_id,
+                'avatarUrl' => $profile->$imgUrl,
                 'email' => $profile->email,
                 'firstname' => $profile->firstname,
                 'lastname' => $profile->lastname,
@@ -88,8 +80,22 @@ class ProfileController extends Controller
             return response('Role not found', Response::HTTP_NOT_FOUND);
         }
 
+        $path = '';
+        $file = null;
+
+        if ($request->input('avatar')) {
+
+            $file = $request->file('avatar');
+            if (!$file->isValid()) {
+                return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $path = Storage::putFile('public/avatars', $file);
+        }
+
         //Default New User Password = email
         $newProfile = new Profile([
+            'avatar_url' => $path ?? null,
             'firstname' => $request->input('firstname'),
             'lastname' => $request->input('lastname'),
             'position' => $request->input('position'),
@@ -124,8 +130,15 @@ class ProfileController extends Controller
         if ($profile == null) {
             return response('Profile not found!.', Response::HTTP_NOT_FOUND);
         }
+
+        $imgUrl = null;
+        if ($profile->avatar_url != null || $profile->avatar_url != '') {
+
+            $imgUrl = asset(Storage::url($profile->avatar_url));
+        }
         $response = [
             'profileId' => $profile->profile_id,
+            'avatarUrl' => $imgUrl,
             'email' => $profile->email ?? '',
             'mobile' => $profile->mobile ?? '',
             'firstname' => $profile->firstname ?? '',
@@ -145,21 +158,36 @@ class ProfileController extends Controller
         //
         $profile = Profile::where('profile_id', '=', $profileId)->first();
 
-        if(!$profile){
+        if (!$profile) {
             return response('Profile not found!.', Response::HTTP_NOT_FOUND);
         }
 
-        $profile->firstname = $request->input('firstname');
-        $profile->lastname = $request->input('lastname');
-        $profile->email = $request->input('email');
-        $profile->mobile = $request->input('mobile');
-        $profile->position = $request->input('position');
+        $profile->firstname = $request->input('firstname') ?? $profile->firstname;
+        $profile->lastname = $request->input('lastname') ?? $profile->lastname;
+        $profile->email = $request->input('email') ?? $profile->email;
+        $profile->mobile = $request->input('mobile') ?? $profile->mobile;
+        $profile->position = $request->input('position') ?? $profile->position;
         $profile->hashed_password = $request->input('password') != '' ? password_hash($request->input('password'), HASH_HMAC) : $profile->hashed_password;
+
+        $path = '';
+        $file = null;
+
+        if ($request->input('avatar')) {
+
+            $file = $request->file('avatar');
+            if (!$file->isValid()) {
+                return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $path = Storage::putFile('public/avatars', $file);
+        }
+
+        $profile->avatar_url = $path ?? null;
 
         $profile->save();
 
         $response = [
-            "profileId"=>$profile->profile_id
+            "profileId" => $profile->profile_id
         ];
 
         return response($response, Response::HTTP_CREATED);
@@ -173,11 +201,11 @@ class ProfileController extends Controller
         //
         $profile = Profile::where('profile_id', '=', $profileId)->first();
 
-        if(!$profile){
+        if (!$profile) {
             return response('Profile not found!.', Response::HTTP_NOT_FOUND);
         }
 
-        if($profile->tokens()){
+        if ($profile->tokens()) {
             $profile->tokens()->delete();
         }
 
