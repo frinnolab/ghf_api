@@ -160,11 +160,11 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{impactId}', 'destroy');//->middleware('auth:sanctum');
 
             
-            // Route::get('/assets', 'index');
-            // Route::get('/assets/{assetId}', 'show');
-            // Route::post('/assets', 'store');//->middleware('auth:sanctum');
-            // Route::put('/assets{impactId}', 'update');//->middleware('auth:sanctum');
-            // Route::delete('assets/{impactId}', 'destroy');//->middleware('auth:sanctum');
+            Route::get('/assets/{impactId}', 'assets_index');
+            Route::get('/assets/{assetId}', 'assets_show');
+            Route::post('/assets/{impactId}', 'assets_store');//->middleware('auth:sanctum');
+            // Route::put('/assets/{assetId}', 'assets_update');//->middleware('auth:sanctum');
+            Route::delete('assets/{assetId}', 'assets_destroy');//->middleware('auth:sanctum');
         });
     });
 });

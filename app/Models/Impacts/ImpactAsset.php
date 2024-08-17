@@ -7,20 +7,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Impact extends Model
+class ImpactAsset extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
 
-    protected $primaryKey = 'impact_id';
+    protected $primaryKey = 'impact_asset_id';
 
     protected $fillable = [
-        "title",
-        "description",
-        "school_name",
-        "school_region",
-        "school_district",
-        "student_boys",
-        "student_girls",
-        "student_total",
+        'impact_id',
+        'asset_url'
     ];
 }

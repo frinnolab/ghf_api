@@ -22,6 +22,8 @@ return new class extends Migration
             $table->integer('student_girls')->default(0);
             $table->integer('student_boys')->default(0);
             $table->integer('student_total')->default(0);
+            $table->timestamps();
+            $table->softDeletes();
         });
     }
 
