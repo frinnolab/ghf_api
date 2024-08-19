@@ -21,8 +21,14 @@ class ProfileController extends Controller
         if ($profiles == null) {
             return response([], Response::HTTP_NO_CONTENT);
         }
-        $response = [];
 
+        //Search by email
+        if($request->query('email')){
+            $profiles = Profile::where('email', 'like', '%'.$request->query('email').'%')->get();
+        }
+
+
+        $response = [];
 
         foreach ($profiles as $profile) {
             $imgUrl = null;

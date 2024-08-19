@@ -8,6 +8,7 @@ use App\Models\Teams\TeamManager;
 use App\Models\Teams\TeamMember;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Storage;
 
 class TeamController extends Controller
 {
@@ -27,14 +28,14 @@ class TeamController extends Controller
 
         foreach ($teams as $team) {
 
-            $tm = TeamMember::where('team_id','=', $team->team_id, 'AND', 'member_id', '!=',null)->get();
+            $tm = TeamMember::where('team_id', '=', $team->team_id, 'AND', 'member_id', '!=', null)->get();
 
             $data = [
                 "teamId" => $team->team_id,
                 "name" => $team->name,
                 "totalMembers" => count($tm) ?? 0,
             ];
-            
+
 
             array_push($response, $data);
         }
@@ -73,7 +74,7 @@ class TeamController extends Controller
 
         //New Team
         $newTeam = new Team([
-            "name"=> $request->input('name') ?? ''
+            "name" => $request->input('name') ?? ''
         ]);
 
 
@@ -85,12 +86,12 @@ class TeamController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $teamId, Request $request)
+    public function show(string $teamId)
     {
         //
         $team = Team::where('team_id', '=', $teamId)->first();
 
-        $tm = TeamMember::where('team_id','=', $team->team_id, 'AND', 'member_id', '!=',null)->get();
+        $tm = TeamMember::where('team_id', '=', $team->team_id, 'AND', 'member_id', '!=', null)->get();
 
         if (!$team) {
             return response([], Response::HTTP_NOT_FOUND);
@@ -135,7 +136,7 @@ class TeamController extends Controller
 
         $team = Team::where('team_id', '=', $request->input('teamId'))->first();
 
-        if(!$team){
+        if (!$team) {
             return response([], Response::HTTP_NOT_FOUND);
         }
 
@@ -156,12 +157,12 @@ class TeamController extends Controller
         $team->delete();
 
         return response([], Response::HTTP_CREATED);
-
     }
 
     //Team Members Endpoints
 
-    public function getTeamMembers(string $teamId){
+    public function getTeamMembers(string $teamId)
+    {
 
         $team = Team::where('team_id', '=', $teamId)->first();
 
@@ -169,7 +170,7 @@ class TeamController extends Controller
             return response([], Response::HTTP_NOT_FOUND);
         }
 
-        $tMemmbers = TeamMember::where('team_id','=', $team->team_id)->get();
+        $tMemmbers = TeamMember::where('team_id', '=', $team->team_id)->get();
 
         if (!$tMemmbers) {
             return response([], Response::HTTP_NO_CONTENT);
@@ -178,14 +179,26 @@ class TeamController extends Controller
         $response = [];
 
         foreach ($tMemmbers as $tm) {
-            $pf = Profile::where('profile_id','=', $tm->member_id)->first();
+            $pf = Profile::where('profile_id', '=', $tm->member_id)->first();
+
+            $imgUrl = asset(Storage::url($pf->avatar_url));
+
+            $member = [
+                'profileId' => $pf->profile_id,
+                'avatarUrl' => $pf->$imgUrl,
+                'email' => $pf->email,
+                'firstname' => $pf->firstname,
+                'lastname' => $pf->lastname,
+                'position' => $pf->position,
+                'mobile' => $pf->mobile,
+                'roleType' => $pf->roleType,
+            ];
 
             $data = [
-                'memberId'=>$pf->profile_id,
-                'avatarUrl'=>$pf->avatar_url,
-                'email'=>$pf->email,
-                'position'=>$pf->position,
-                'teamPosition'=>$tm->team_position,
+                'teamId' => $team->team_id,
+                'memberId' => $pf->profile_id,
+                'member' => $member,
+                'teamPosition' => $tm->team_position,
             ];
 
             array_push($response, $data);
@@ -195,7 +208,8 @@ class TeamController extends Controller
     }
 
 
-    public function getTeamMember(string $teamId, string $memberId){
+    public function getTeamMember(string $teamId, string $memberId)
+    {
 
         $team = Team::where('team_id', '=', $teamId)->first();
 
@@ -209,75 +223,88 @@ class TeamController extends Controller
             return response([], Response::HTTP_NOT_FOUND);
         }
 
-        $tMemmbers = TeamMember::where('team_id','=', $team->team_id, 'AND', 'member_id','=',$memb->profile_id)->get();
+        $tMemmbers = TeamMember::where('team_id', '=', $team->team_id, 'AND', 'member_id', '=', $memb->profile_id)->get();
 
         if (!$tMemmbers) {
             return response([], Response::HTTP_NO_CONTENT);
         }
 
         $response = [
-            "Id"=>$tMemmbers->team_m_id,
-            "avatarUrl"=>$memb->avatar_url,
-            "email"=>$tMemmbers->email,
-            "teamId"=>$tMemmbers->team_id,
-            "memberId"=>$tMemmbers->member_id,
-            "teamPosition"=>$team->team_position,
+            "Id" => $tMemmbers->team_m_id,
+            "avatarUrl" => $memb->avatar_url,
+            "email" => $tMemmbers->email,
+            "teamId" => $tMemmbers->team_id,
+            "memberId" => $tMemmbers->member_id,
+            "teamPosition" => $team->team_position,
         ];
 
 
         return response($response, Response::HTTP_OK);
     }
-    
-    
+
+
     //Add member to team
-    public function addMemberToTeam(Request $request){
+    public function addMemberToTeam(Request $request)
+    {
+
         $team = Team::where('team_id', '=', $request->input('teamId'))->first();
 
-        if(!$team){
+        if (!$team) {
             return response('Team not found', Response::HTTP_NOT_FOUND);
         }
         $prf = Profile::where('profile_id', '=', $request->input('memberId'))->first();
 
-        if(!$prf){
+        if (!$prf) {
             return response('Profile not found', Response::HTTP_NOT_FOUND);
         }
 
         $tm = new TeamMember([
-            "team_id"=>$team->team_id,
-            "member_id"=>$prf->profile_id,
-            "team_position"=>$request->input('teamPosition'),
+            "team_id" => $team->team_id,
+            "member_id" => $prf->profile_id,
+            "team_position" => $request->input('teamPosition'),
         ]);
 
         $tm->save();
+
+        $team->total_members = +1;
+
+        $team->update();
 
         return response([], Response::HTTP_CREATED);
     }
 
     //Update member to team
-    public function updateMemberToTeam(Request $request){
+    public function updateMemberToTeam(Request $request)
+    {
         $team = Team::where('team_id', '=', $request->input('teamId'))->first();
 
-        if(!$team){
+        if (!$team) {
             return response('Team not found', Response::HTTP_NOT_FOUND);
         }
         $prf = Profile::where('profile_id', '=', $request->input('memberId'))->first();
 
-        if(!$prf){
+        if (!$prf) {
             return response('Profile not found', Response::HTTP_NOT_FOUND);
         }
 
-        $tm = TeamMember::where('team_id', '=', $team->team_id, 
-        'AND', 
-        'member_id', '=', $prf->profile_id)->first();
+        $tm = TeamMember::where(
+            'team_id',
+            '=',
+            $team->team_id,
+            'AND',
+            'member_id',
+            '=',
+            $prf->profile_id
+        )->first();
 
-        if(!$tm){
+        if (!$tm) {
             return response([], Response::HTTP_NOT_FOUND);
         }
 
         $tm = new TeamMember([
-            "team_id"=>$team->team_id,
-            "member_id"=>$prf->profile_id,
-            "team_position"=>$request->input('teamPosition'),
+            "team_id" => $team->team_id,
+            "member_id" => $prf->profile_id,
+            "team_position" => $request->input('teamPosition'),
         ]);
 
         $tm->team_position = $request->input('teamPosition') ?? $tm->team_position;
@@ -286,25 +313,32 @@ class TeamController extends Controller
 
         return response([], Response::HTTP_CREATED);
     }
-    
+
     //Remove member to team
-    public function removeMemberToTeam(Request $request){
+    public function removeMemberToTeam(Request $request)
+    {
         $team = Team::where('team_id', '=', $request->input('teamId'))->first();
 
-        if(!$team){
+        if (!$team) {
             return response('Team not found', Response::HTTP_NOT_FOUND);
         }
         $prf = Profile::where('profile_id', '=', $request->input('memberId'))->first();
 
-        if(!$prf){
+        if (!$prf) {
             return response('Profile not found', Response::HTTP_NOT_FOUND);
         }
 
-        $tm = TeamMember::where('team_id', '=', $team->team_id, 
-        'AND', 
-        'member_id', '=', $prf->profile_id)->first();
+        $tm = TeamMember::where(
+            'team_id',
+            '=',
+            $team->team_id,
+            'AND',
+            'member_id',
+            '=',
+            $prf->profile_id
+        )->first();
 
-        if(!$tm){
+        if (!$tm) {
             return response([], Response::HTTP_NOT_FOUND);
         }
 

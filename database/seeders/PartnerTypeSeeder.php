@@ -25,8 +25,15 @@ class PartnerTypeSeeder extends Seeder
             'name'=>'DONOR',
             'type'=>1
         ];
-        $partners = [$partnerType, $donorType];
 
-        DB::table('partner_types')->insert($partners);
+
+        $collaboratorType = [
+            'partner_type_id'=>uuid_create(),
+            'name'=>'COLLABORATOR',
+            'type'=>2
+        ];
+        //$partners = [$partnerType, $donorType];
+
+        DB::table('partner_types')->insert($collaboratorType);
     }
 }

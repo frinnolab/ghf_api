@@ -11,7 +11,7 @@ class Team extends Model
 {
     use HasFactory, SoftDeletes, HasUuids;
 
-    protected $primary_key = 'team_id';
+    protected $primaryKey = 'team_id';
 
     protected $fillable = [
         "name",
