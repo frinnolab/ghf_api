@@ -161,6 +161,54 @@ class TeamController extends Controller
 
     //Team Members Endpoints
 
+    public function getMainBoardTeam()
+    {
+        //Public facing endponit
+
+        $team = Team::where('is_main_board', '=', 1)->first();
+
+        if (!$team) {
+            return response([], Response::HTTP_NO_CONTENT);
+        }
+
+
+        $tMemmbers = TeamMember::where('team_id', '=', $team->team_id)->get();
+
+        if (!$tMemmbers) {
+            return response([], Response::HTTP_NO_CONTENT);
+        }
+
+        $response = [];
+
+        foreach ($tMemmbers as $tm) {
+            $pf = Profile::where('profile_id', '=', $tm->member_id)->first();
+
+            $imgUrl = asset(Storage::url($pf->avatar_url));
+
+            $member = [
+                'profileId' => $pf->profile_id,
+                'avatarUrl' => $pf->$imgUrl,
+                'email' => $pf->email,
+                'firstname' => $pf->firstname,
+                'lastname' => $pf->lastname,
+                'position' => $pf->position,
+                'mobile' => $pf->mobile,
+                'roleType' => $pf->roleType,
+            ];
+
+            $data = [
+                'teamId' => $team->team_id,
+                'memberId' => $pf->profile_id,
+                'member' => $member,
+                'teamPosition' => $tm->team_position,
+            ];
+
+            array_push($response, $data);
+        }
+
+        return response($response, Response::HTTP_OK);
+    }
+
     public function getTeamMembers(string $teamId)
     {
 

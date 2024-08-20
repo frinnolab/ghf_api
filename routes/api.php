@@ -130,6 +130,7 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{teamId}', 'destroy')->middleware('auth:sanctum');
             
             //Team Members
+            Route::get('/members/main', 'getMainBoardTeam');
             Route::get('/members/{teamId}', 'getTeamMembers');
             Route::get('/members/{teamId}/{memberId}', 'getTeamMember');
             Route::post('/members', 'addMemberToTeam')->middleware('auth:sanctum');

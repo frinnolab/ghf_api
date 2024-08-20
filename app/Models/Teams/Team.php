@@ -15,6 +15,7 @@ class Team extends Model
 
     protected $fillable = [
         "name",
+        "is_main_board",
         "total_members"
     ];
 }

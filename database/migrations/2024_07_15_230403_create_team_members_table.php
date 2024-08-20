@@ -11,14 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('team_members', function (Blueprint $table) {
-            $table->uuid('team_m_id')->primary();
-            $table->string('team_id')->nullable();
-            $table->string('member_id')->nullable();
-            $table->string('team_position')->nullable();
-            $table->softDeletes();
-            $table->timestamps();
-        });
+        // Schema::create('team_members', function (Blueprint $table) {
+        //     $table->uuid('team_m_id')->primary();
+        //     $table->string('team_id')->nullable();
+        //     $table->string('member_id')->nullable();
+        //     $table->string('team_position')->nullable();
+        //     $table->softDeletes();
+        //     $table->timestamps();
+        // });
+
+        // Schema::table('team_members', function (Blueprint $table) {
+        //     $table->boolean('is_main_board')->default(false);
+        // });
     }
 
     /**

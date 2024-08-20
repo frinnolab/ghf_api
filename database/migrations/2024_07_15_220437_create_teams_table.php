@@ -22,6 +22,10 @@ return new class extends Migration
         // Schema::table('teams', function (Blueprint $table) {
         //     $table->dropColumn('id');
         // });
+
+        Schema::table('teams', function (Blueprint $table) {
+            $table->boolean('is_main_board')->default(false);
+        });
     }
 
     /**
