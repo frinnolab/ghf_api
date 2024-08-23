@@ -22,17 +22,30 @@ class SettingsController extends Controller
             return response([], Response::HTTP_NO_CONTENT);
         }
 
+        $logoAssetUrl = null;
+        $videoAssetUrl = null;
+
+        if (asset(Storage::url($data->logoUrl))) {
+            $logoAssetUrl = asset(Storage::url($data->logoUrl));
+        }
+
+        if (asset(Storage::url($data->logoUrl))) {
+            $videoAssetUrl = asset(Storage::url($data->introVideoUrl));
+        }
+
         $response = [
             'id' => $data->id,
             'companyName' => $data->companyName,
             'companyAddress' => $data->companyAddress,
             'companyEmail' =>  $data->companyEmail,
             'companyMobile' => $data->companyMobile,
+            'companyMobileTelephone' => $data->companyMobile,
+            'companyMobileAltenate' => $data->companyMobile,
             'companyBiography' =>  $data->companyBiography,
             'companyMission' => $data->companyMission,
             'companyVision' => $data->companyVision,
-            'logoUrl' => asset(Storage::url($data->logoUrl)),
-            'introVideoUrl' => asset(Storage::url($data->introVideoUrl))
+            'logoUrl' => $logoAssetUrl,
+            'introVideoUrl' =>  $videoAssetUrl
         ];
         return response($response, Response::HTTP_OK);
     }
@@ -101,7 +114,9 @@ class SettingsController extends Controller
             'companyName' => $request->input('companyName') ?? $data->companyName,
             'companyAddress' => $request->input('companyAddress') ?? $data->companyAddress,
             'companyEmail' => $request->input('companyEmail') ?? $data->companyEmail,
-            'companyMobile' => json_encode($request->input('companyMobile'))  ?? $data->companyMobile,
+            'companyMobile' => $request->input('companyMobile')  ?? $data->companyMobile,
+            'companyMobile' => $request->input('companyMobileTelephone')  ?? $data->companyMobileTelephone,
+            'companyMobile' => $request->input('companyMobileAltenate')  ?? $data->companyMobileAltenate,
             'companyBiography' => $request->input('companyBiography') ?? $data->companyBiography,
             'companyMission' => $request->input('companyMission') ?? $data->companyMission,
             'companyVision' => $request->input('companyVision') ?? $data->companyVision,

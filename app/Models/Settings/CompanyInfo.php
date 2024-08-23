@@ -18,6 +18,8 @@ class CompanyInfo extends Model
         'companyAddress',
         'companyEmail',
         'companyMobile',
+        'companyMobileTelephone',
+        'companyMobileAltenate',
         'companyBiography',
         'companyMission',
         'companyVision',

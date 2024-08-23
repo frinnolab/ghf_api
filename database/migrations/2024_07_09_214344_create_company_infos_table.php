@@ -25,10 +25,14 @@ return new class extends Migration
         //     $table->timestamps();
         // });
 
-        Schema::table('company_infos', function (Blueprint $table) {
-            $table->softDeletes();
-        });
-
+        // Schema::table('company_infos', function (Blueprint $table) {
+        //     $table->softDeletes();
+        // });
+        // Schema::table('company_infos', function (Blueprint $table) {
+        //    $table->string('companyMobileTelephone')->nullable();
+        //    $table->string('companyMobileAltenate')->nullable();
+        //     // $table->softDeletes();
+        // });
     }
 
     /**
