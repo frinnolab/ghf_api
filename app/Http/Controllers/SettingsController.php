@@ -25,11 +25,11 @@ class SettingsController extends Controller
         $logoAssetUrl = null;
         $videoAssetUrl = null;
 
-        if (asset(Storage::url($data->logoUrl))) {
+        if($data->logoUrl != null){
             $logoAssetUrl = asset(Storage::url($data->logoUrl));
         }
 
-        if (asset(Storage::url($data->logoUrl))) {
+        if($data->introVideoUrl != null){
             $videoAssetUrl = asset(Storage::url($data->introVideoUrl));
         }
 
@@ -80,14 +80,14 @@ class SettingsController extends Controller
 
         $data = CompanyInfo::all()->first();
 
-        if ($data == null) {
-            return response([], Response::HTTP_NOT_FOUND);
-        }
+        // if ($data == null) {
+        //     return response([], Response::HTTP_NOT_FOUND);
+        // }
 
         $path = '';
         $file = null;
 
-        if ($request->input('image')) {
+        if ($request->hasFile('image')) {
 
             $file = $request->file('image');
             if (!$file->isValid()) {
@@ -100,7 +100,7 @@ class SettingsController extends Controller
         $videopath = '';
         $videofile = null;
 
-        if ($request->input('video')) {
+        if ($request->hasFile('video')) {
 
             $videofile = $request->file('video');
             if (!$file->isValid()) {
@@ -111,20 +111,83 @@ class SettingsController extends Controller
         }
 
         $dataUpdate = [
-            'companyName' => $request->input('companyName') ?? $data->companyName,
-            'companyAddress' => $request->input('companyAddress') ?? $data->companyAddress,
-            'companyEmail' => $request->input('companyEmail') ?? $data->companyEmail,
-            'companyMobile' => $request->input('companyMobile')  ?? $data->companyMobile,
-            'companyMobile' => $request->input('companyMobileTelephone')  ?? $data->companyMobileTelephone,
-            'companyMobile' => $request->input('companyMobileAltenate')  ?? $data->companyMobileAltenate,
-            'companyBiography' => $request->input('companyBiography') ?? $data->companyBiography,
-            'companyMission' => $request->input('companyMission') ?? $data->companyMission,
-            'companyVision' => $request->input('companyVision') ?? $data->companyVision,
+            'companyName' => $request->input('companyName'),
+            'companyAddress' => $request->input('companyAddress'),
+            'companyEmail' => $request->input('companyEmail'),
+            'companyMobile' => $request->input('companyMobile'),
+            'companyMobile' => $request->input('companyMobileTelephone'),
+            'companyMobile' => $request->input('companyMobileAltenate'),
+            'companyBiography' => $request->input('companyBiography'),
+            'companyMission' => $request->input('companyMission'),
+            'companyVision' => $request->input('companyVision'),
             'logoUrl' => $path ?? $data->logoUrl,
             'introVideoUrl' => $videopath ?? $data->introVideoUrl,
         ];
 
-        $data->save($dataUpdate);
+        $data->update($dataUpdate);
+
+        return response([], Response::HTTP_CREATED);
+    }
+
+    public function companyInfoAssetsCreate(string $adminId, Request $request)
+    {
+        $authorProfile = Profile::where('profile_id', '=', $adminId)->first();
+
+        if ($authorProfile == null) {
+            return response("Profile not found!.", Response::HTTP_NOT_FOUND);
+        }
+
+        $authorRoleType = intval($authorProfile->roleType);
+
+        switch ($authorRoleType) {
+            case -1:
+                # code...
+                break;
+            case 1:
+                # code...
+                break;
+
+            default:
+                # code...
+                return response("", Response::HTTP_UNAUTHORIZED);
+                //break;
+        }
+
+       
+        $data = CompanyInfo::all()->first();
+
+        $path = '';
+        $file = null;
+
+        if ($request->hasFile('imageAsset')) {
+
+            $file = $request->file('imageAsset');
+            if (!$file->isValid()) {
+                return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $path = Storage::putFile('public/company_info/logo_assets', $file);
+        }
+
+        $videopath = '';
+        $videofile = null;
+
+        if ($request->hasFile('videoAsset')) {
+
+            $videofile = $request->file('videoAsset');
+            if (!$file->isValid()) {
+                return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $videopath = Storage::putFile('public/company_info/video_assets', $videofile);
+        }
+
+        $dataUpdate = [
+            'logoUrl' => $path,
+            'introVideoUrl' => $videopath,
+        ];
+
+        $data->update($dataUpdate);
 
         return response([], Response::HTTP_CREATED);
     }

@@ -146,6 +146,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/companyinfo', 'companyInfoIndex');
             Route::get('/summaryinfo', 'summaryInfoIndex');
             Route::put('/{adminId}/companyinfo', 'companyInfoCreate')->middleware('auth:sanctum');
+            Route::put('/{adminId}/companyassets', 'companyInfoAssetsCreate')->middleware('auth:sanctum');
             // Route::delete('/{blogId}', 'destroy')->middleware('auth:sanctum');
         });
     });
