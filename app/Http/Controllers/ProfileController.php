@@ -23,8 +23,8 @@ class ProfileController extends Controller
         }
 
         //Search by email
-        if($request->query('email')){
-            $profiles = Profile::where('email', 'like', '%'.$request->query('email').'%')->get();
+        if ($request->query('email')) {
+            $profiles = Profile::where('email', 'like', '%' . $request->query('email') . '%')->get();
         }
 
 
@@ -173,12 +173,15 @@ class ProfileController extends Controller
         $profile->email = $request->input('email') ?? $profile->email;
         $profile->mobile = $request->input('mobile') ?? $profile->mobile;
         $profile->position = $request->input('position') ?? $profile->position;
-        $profile->hashed_password = $request->input('password') != '' ? password_hash($request->input('password'), HASH_HMAC) : $profile->hashed_password;
+
+        if ($request->input('password')) {
+            $profile->hashed_password = $request->input('password') != '' ? password_hash($request->input('password'), HASH_HMAC) : $profile->hashed_password;
+        }
 
         $path = '';
         $file = null;
 
-        if ($request->input('avatar')) {
+        if ($request->hasFile('avatar')) {
 
             $file = $request->file('avatar');
             if (!$file->isValid()) {

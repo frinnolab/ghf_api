@@ -15,12 +15,20 @@
 #login
 
 
-POST {{baseUrl}}{{auth}}/login
+# POST {{baseUrl}}{{auth}}/login
+# Accept: application/json
+# Content-Type: application/json
+
+# {
+#     "email":"dev.frinno@gmail.com",
+#     "password":"@150505"
+# }
+PUT {{baseUrl}}/settings/companyinfo/a814ca66-97e7-4819-82ef-f1811b82cfca
 Accept: application/json
 Content-Type: application/json
 
 {
-    "email":"dev.frinno@gmail.com",
-    "password":"@150505"
+    "id": "a814ca66-97e7-4819-82ef-f1811b82cfca",
+    "companyName": "GREAT HOPE"
 }
 
