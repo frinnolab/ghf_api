@@ -29,7 +29,7 @@ class PartnerController extends Controller
 
         foreach ($partners as $partner) {
             $imgUrl = null;
-            if ($partner->thumbnail_url != '' or $partner->logo_url != null) {
+            if ($partner->logo_url != '' or $partner->logo_url != null) {
                 $imgUrl = asset(Storage::url($partner->logo_url));
             }
             $data = [
@@ -38,6 +38,7 @@ class PartnerController extends Controller
                 'type' => $partner->type,
                 'logoUrl' => $imgUrl,
                 'description' => $partner->description,
+                'startYear' => $partner->start_year,
             ];
 
             array_push($response, $data);
@@ -88,7 +89,7 @@ class PartnerController extends Controller
         $path = null;
         $file = null;
 
-        if ($request->input('image')) {
+        if ($request->hasFile('image')) {
 
             $file = $request->file('image');
             if (!$file->isValid()) {
@@ -99,9 +100,11 @@ class PartnerController extends Controller
         }
 
         $newPartner = new Partner([
-            'logo_url' => $path ?? '',
+            'logo_url' => $path,
             'name' => $request->input('name') ?? null,
             'description' => $request->input('description') ?? null,
+            'start_year' => intval($request->input('startYear'))  ?? null,
+            'end_year' => intval($request->input('endYear')) ?? null,
             'type' => $partnerType->type ?? null,
         ]);
 
@@ -131,11 +134,12 @@ class PartnerController extends Controller
         }
 
         $response = [
-            "partnerId"=>$partner->partner_id,
-            "logoUrl"=>$partner->imgUrl,
-            "name"=>$partner->name,
-            "descriprion"=>$partner->descriprion,
-            "type"=>$partner->type,
+            "partnerId" => $partner->partner_id,
+            "logoUrl" => $imgUrl,
+            "name" => $partner->name,
+            "description" => $partner->description,
+            "type" => $partner->type,
+            "startYear" => $partner->start_year,
         ];
 
         return response($response, Response::HTTP_OK);
@@ -183,22 +187,26 @@ class PartnerController extends Controller
         $path = '';
         $file = null;
 
-        if ($request->input('image')) {
+        if ($request->hasFile('image')) {
 
             $file = $request->file('image');
             if (!$file->isValid()) {
                 return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
             }
 
-            $path = Storage::putFile('public/blog_assets', $file);
+            $path = Storage::putFile('public/partner_assets', $file);
         }
 
-        $partner->logo_url = $path ?? $partner->logo_url;
+        $partner->logo_url = $path;
         $partner->name = $request->input('name') ?? $partner->name;
         $partner->description = $request->input('description') ?? $partner->description;
         $partner->type = $partnerType->type ?? $partner->type;
+        $partner->start_year = intval($request->input('startYear'))  ?? null;
+        $partner->end_year = intval($request->input('endYear')) ?? null;
 
         $partner->save();
+
+        return response([], Response::HTTP_CREATED);
     }
 
     /**
@@ -214,5 +222,7 @@ class PartnerController extends Controller
         }
 
         $partner->delete();
+
+        return response([], Response::HTTP_CREATED);
     }
 }

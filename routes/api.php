@@ -118,7 +118,7 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-    //Blogs
+    //Teams
     Route::prefix('teams')->group(function () {
         Route::controller(TeamController::class)->group(function () {
             Route::get('/', 'index');
@@ -133,7 +133,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/members/{teamId}/{memberId}', 'getTeamMember');
             Route::post('/members', 'addMemberToTeam')->middleware('auth:sanctum');
             Route::put('/members', 'updateMemberToTeam')->middleware('auth:sanctum');
-            Route::delete('/members/removeMemberToTeam', 'destroy')->middleware('auth:sanctum');
+            Route::delete('/members/{teamId}/{memberId}', 'removeMemberToTeam')->middleware('auth:sanctum');
         });
     });
 

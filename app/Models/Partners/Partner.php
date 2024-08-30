@@ -18,5 +18,7 @@ class Partner extends Model
         'description',
         'logo_url',
         'type',
+        'start_year',
+        'end_year',
     ];
 }

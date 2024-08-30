@@ -74,7 +74,8 @@ class TeamController extends Controller
 
         //New Team
         $newTeam = new Team([
-            "name" => $request->input('name') ?? ''
+            "name" => $request->input('name'),
+            "is_main_board" => $request->input('isMainBoard'),
         ]);
 
 
@@ -141,6 +142,8 @@ class TeamController extends Controller
         }
 
         $team->name = $request->input('name');
+        $team->is_main_board = $request->input('isMainBoard');
+        $team->save();
         //$team->team_members = count(Team::all());
 
         return response([], Response::HTTP_CREATED);
@@ -306,6 +309,20 @@ class TeamController extends Controller
             return response('Profile not found', Response::HTTP_NOT_FOUND);
         }
 
+        $tmr = TeamMember::where(
+            'team_id',
+            '=',
+            $team->team_id,
+            'AND',
+            'member_id',
+            '=',
+            $prf->profile_id
+        )->first();
+
+        if($tmr != null ){
+            return response(['Profile already exists'], Response::HTTP_FOUND);
+        }
+
         $tm = new TeamMember([
             "team_id" => $team->team_id,
             "member_id" => $prf->profile_id,
@@ -363,34 +380,31 @@ class TeamController extends Controller
     }
 
     //Remove member to team
-    public function removeMemberToTeam(Request $request)
+    public function removeMemberToTeam(string $teamId, string $memberId)
     {
-        $team = Team::where('team_id', '=', $request->input('teamId'))->first();
+        $team = Team::where('team_id', '=', $teamId)->first();
 
         if (!$team) {
             return response('Team not found', Response::HTTP_NOT_FOUND);
         }
-        $prf = Profile::where('profile_id', '=', $request->input('memberId'))->first();
+
+        $prf = Profile::where('profile_id', '=', $memberId)->first();
 
         if (!$prf) {
             return response('Profile not found', Response::HTTP_NOT_FOUND);
         }
 
-        $tm = TeamMember::where(
-            'team_id',
-            '=',
-            $team->team_id,
-            'AND',
-            'member_id',
-            '=',
-            $prf->profile_id
-        )->first();
+        $tm = TeamMember::where('team_id', '=', $team->team_id, 'AND', 'member_id', '=', $prf->profile_id)->first();
 
         if (!$tm) {
             return response([], Response::HTTP_NOT_FOUND);
         }
 
         $tm->delete();
+
+        $team->total_members = -1;
+
+        $team->update();
 
         return response([], Response::HTTP_CREATED);
     }
