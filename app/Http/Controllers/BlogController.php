@@ -138,7 +138,7 @@ class BlogController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $blogId)
+    public function update(string $blogId, Request $request)
     {
         //
 

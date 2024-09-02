@@ -113,7 +113,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/', 'index');
             Route::get('/{blogId}', 'show');
             Route::post('/', 'store')->middleware('auth:sanctum');
-            Route::put('/blogId}', 'update')->middleware('auth:sanctum');
+            Route::put('/{blogId}', 'update')->middleware('auth:sanctum');
             Route::delete('/{blogId}', 'destroy')->middleware('auth:sanctum');
         });
     });
