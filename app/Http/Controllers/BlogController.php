@@ -77,10 +77,10 @@ class BlogController extends Controller
                 //break;
         }
 
-        $path = '';
+        $path = null;
         $file = null;
 
-        if ($request->input('image')) {
+        if ($request->hasFile('image')) {
 
             $file = $request->file('image');
             if (!$file->isValid()) {
@@ -138,13 +138,11 @@ class BlogController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(string $authorId, string $blogId, Request $request)
+    public function update(Request $request, string $blogId)
     {
         //
 
-        $authorProfile = Profile::where('profile_id', '=', $authorId)->first();
-
-
+        $authorProfile = Profile::where('profile_id', '=', $request->input('authorId'))->first();
 
         if ($authorProfile == null) {
             return response("Profile not found!.", Response::HTTP_NOT_FOUND);
@@ -172,10 +170,10 @@ class BlogController extends Controller
             return response([], Response::HTTP_NOT_FOUND);
         }
 
-        $path = '';
+        $path = null;
         $file = null;
 
-        if ($request->input('image')) {
+        if ($request->hasFile('image')) {
 
             $file = $request->file('image');
             if (!$file->isValid()) {
@@ -194,7 +192,6 @@ class BlogController extends Controller
 
         $response = [
             'blogId' => $blog->blog_id,
-            'title' => $blog->title,
         ];
 
         return response($response, Response::HTTP_CREATED);
