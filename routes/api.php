@@ -137,7 +137,6 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-
     //Settings
     Route::prefix('settings')->group(function () {
         Route::controller(SettingsController::class)->group(function () {
@@ -160,7 +159,6 @@ Route::prefix('v1')->group(function () {
             // Route::delete('/{blogId}', 'destroy')->middleware('auth:sanctum');
         });
     });
-
 
     //Impacts
     Route::prefix('impacts')->group(function () {
