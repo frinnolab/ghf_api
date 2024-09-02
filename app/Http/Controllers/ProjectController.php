@@ -103,9 +103,6 @@ class ProjectController extends Controller
         }
 
 
-
-
-
         $newProject = new Project([
             'programme_id' => $programme->programme_id ?? null,
             'publisher_profile_id' => $creatorProfile->profile_id,
@@ -200,10 +197,10 @@ class ProjectController extends Controller
         }
 
 
-        $path = '';
+        $path = null;
         $file = null;
 
-        if ($request->input('image')) {
+        if ($request->hasFile('image')) {
 
             $file = $request->file('image');
 

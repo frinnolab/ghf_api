@@ -184,7 +184,7 @@ class PartnerController extends Controller
 
         $partnerType = PartnerType::where('type', '=', $request->input('type'))->first();
 
-        $path = '';
+        $path = null;
         $file = null;
 
         if ($request->hasFile('image')) {
