@@ -309,17 +309,10 @@ class TeamController extends Controller
             return response('Profile not found', Response::HTTP_NOT_FOUND);
         }
 
-        $tmr = TeamMember::where(
-            'team_id',
-            '=',
-            $team->team_id,
-            'AND',
-            'member_id',
-            '=',
-            $prf->profile_id
-        )->first();
+        $tmr = TeamMember::where('team_id', '=', $team->team_id)->where('member_id', '=', $prf->profile_id)->first();
 
-        if($tmr != null ){
+
+        if ($tmr != null) {
             return response(['Profile already exists'], Response::HTTP_FOUND);
         }
 
