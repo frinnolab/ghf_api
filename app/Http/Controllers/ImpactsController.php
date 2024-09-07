@@ -13,21 +13,34 @@ class ImpactsController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
         $response =  [];
 
+        $limit = 0;
+
         $datas = Impact::all();
+
 
         if ($datas == null) {
             return response($response, Response::HTTP_NO_CONTENT);
         }
 
+        if ($request->query('limit')) {
+            $limit = intval($request->query('limit'));
+            $datas = $datas->take($limit);
+        }
+
 
         foreach ($datas as $data) {
+
+            $asset = ImpactAsset::where('impact_id', '=', $data->impact_id)->first();
+
+            $asset_url = asset(Storage::url($asset->asset_url)) ?? null;
             $dataRes = [
                 "impactId" => $data->impact_id,
+                "assetUrl" => $asset_url,
                 "title" => $data->title,
                 "description" => $data->description,
                 "schoolName" => $data->school_name,
@@ -36,6 +49,7 @@ class ImpactsController extends Controller
                 "studentGirls" => $data->student_girls,
                 "studentBoys" => $data->student_boys,
                 "studentsTotal" => $data->student_total,
+                "limit" => $request->query('limit'),
             ];
 
             array_push($response, $dataRes);
@@ -89,9 +103,14 @@ class ImpactsController extends Controller
             return response([], Response::HTTP_NOT_FOUND);
         }
 
+        $asset = ImpactAsset::where('impact_id', '=', $data->impact_id)->first();
+
+        $asset_url = asset(Storage::url($asset->asset_url)) ?? null;
+
 
         $response = [
             "impactId" => $data->impact_id,
+            "assetUrl" => $asset_url,
             "title" => $data->title,
             "description" => $data->description,
             "schoolName" => $data->school_name,
@@ -122,8 +141,8 @@ class ImpactsController extends Controller
         $data->school_name = $request->input('schoolName') ?? $data->school_name;
         $data->school_region = $request->input('schoolRegion') ?? $data->school_region;
         $data->school_district = $request->input('schoolDistrict') ?? $data->school_district;
-        $data->student_boys = intval($request->input('studentBoys') ?? $data->student_boys) ;
-        $data->student_girls = intval($request->input('studentGirls') ?? $data->student_girls) ;
+        $data->student_boys = intval($request->input('studentBoys') ?? $data->student_boys);
+        $data->student_girls = intval($request->input('studentGirls') ?? $data->student_girls);
         $data->student_total = intval($data->student_boys + $data->student_girls);
 
 
@@ -227,26 +246,26 @@ class ImpactsController extends Controller
         if ($request->hasFile('image')) {
 
             $file = $request->file('image');
-            
+
             if (!$file->isValid()) {
                 return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
             }
 
             $path = Storage::putFile('public/impact_assets', $file);
-        }else{
+        } else {
 
             return response([$request->hasFile('image')], Response::HTTP_FOUND);
         }
 
         $impactAsset =  new ImpactAsset([
-            "impact_id"=>$impact->impact_id,
-            "asset_url"=>$path
+            "impact_id" => $impact->impact_id,
+            "asset_url" => $path
         ]);
 
         $impactAsset->save();
 
         return response([
-            "assetId"=>$impactAsset->impact_asset_id
+            "assetId" => $impactAsset->impact_asset_id
         ], Response::HTTP_CREATED);
     }
 
@@ -258,7 +277,7 @@ class ImpactsController extends Controller
     {
         $asset = ImpactAsset::where('impact_asset_id', '=', $assetId)->first();
 
-        if($asset == null){
+        if ($asset == null) {
             return response([], Response::HTTP_NOT_FOUND);
         }
 
