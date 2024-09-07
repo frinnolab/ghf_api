@@ -122,13 +122,14 @@ Route::prefix('v1')->group(function () {
     Route::prefix('teams')->group(function () {
         Route::controller(TeamController::class)->group(function () {
             Route::get('/', 'index');
+            Route::get('/main', 'getMainBoardTeam');
             Route::get('/{teamId}', 'show');
             Route::post('/', 'store')->middleware('auth:sanctum');
             Route::put('/{teamId}', 'update')->middleware('auth:sanctum');
             Route::delete('/{teamId}', 'destroy')->middleware('auth:sanctum');
 
             //Team Members
-            Route::get('/members/main', 'getMainBoardTeam');
+            Route::get('/members/main', 'getMainBoardTeamMembers');
             Route::get('/members/{teamId}', 'getTeamMembers');
             Route::get('/members/{teamId}/{memberId}', 'getTeamMember');
             Route::post('/members', 'addMemberToTeam')->middleware('auth:sanctum');
