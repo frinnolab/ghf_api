@@ -8,8 +8,10 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProfileRolesController;
 use App\Http\Controllers\ProgrammesController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\PublicationsController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TeamController;
+use App\Models\Publications\Publication;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -104,6 +106,26 @@ Route::prefix('v1')->group(function () {
             Route::post('/', 'store')->middleware('auth:sanctum');
             Route::put('/{partnerId}', 'update')->middleware('auth:sanctum');
             Route::delete('/{partnerId}', 'destroy')->middleware('auth:sanctum');
+        });
+    });
+
+    //Publications
+    Route::prefix('publications')->group(function () {
+        Route::controller(PublicationsController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::get('/{publishId}', 'show');
+            Route::post('/', 'store')->middleware('auth:sanctum');
+            Route::put('/{publishId}', 'update')->middleware('auth:sanctum');
+            Route::delete('/{publishId}', 'destroy')->middleware('auth:sanctum');
+        });
+
+        //Publication Assets
+        Route::controller(PublicationsController::class)->group(function () {
+            Route::get('/assets/{publishId}', 'assets_index');
+            Route::get('/assets/{assetId}', 'assets_show');
+            Route::post('/assets', 'assets_store')->middleware('auth:sanctum');
+            //Route::put('/assets/{assetId}', 'assets_update')->middleware('auth:sanctum');
+            Route::delete('/assets/{assetId}', 'assets_destroy')->middleware('auth:sanctum');
         });
     });
 

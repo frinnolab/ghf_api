@@ -220,7 +220,9 @@ class ImpactsController extends Controller
         $data = ImpactAsset::where('impact_asset_id', '=', $assetId)->first();
 
         if ($data == null) {
-            return response([], Response::HTTP_NOT_FOUND);
+            return response([
+                "Asset not found"
+            ], Response::HTTP_NOT_FOUND);
         }
 
         $response = [
@@ -252,10 +254,11 @@ class ImpactsController extends Controller
             }
 
             $path = Storage::putFile('public/impact_assets', $file);
-        } else {
+        } 
+        // else {
 
-            return response([$request->hasFile('image')], Response::HTTP_FOUND);
-        }
+        //     return response([$request->hasFile('image')], Response::HTTP_FOUND);
+        // }
 
         $impactAsset =  new ImpactAsset([
             "impact_id" => $impact->impact_id,

@@ -234,6 +234,7 @@ class TeamController extends Controller
             $data = [
                 'teamId' => $team->team_id,
                 'memberId' => $pf->profile_id,
+                'memberAvatarUrl' => $imgUrl,
                 'member' => $member,
                 'teamPosition' => $tm->team_position,
             ];
