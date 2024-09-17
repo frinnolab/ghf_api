@@ -134,10 +134,10 @@ class DonationsController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $donationId)
     {
         //
-        $data = Donation::where('donation_id', '=', $id)->first();
+        $data = Donation::where('donation_id', '=', $donationId)->first();
 
         if ($data == null) {
             return response([], Response::HTTP_NOT_FOUND);
