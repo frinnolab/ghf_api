@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\DonationsController;
 use App\Http\Controllers\ImpactsController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\ProfileController;
@@ -99,6 +100,18 @@ Route::prefix('v1')->group(function () {
 
 
     //Partners Management Endpoints
+    Route::prefix('donations')->group(function () {
+        Route::controller(DonationsController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::get('/types', 'index_types');
+            Route::get('/currencies', 'index_currencies');
+            Route::get('/{donationId}', 'show');
+            Route::post('/', 'store')->middleware('auth:sanctum');
+            Route::put('/{donationId}', 'update')->middleware('auth:sanctum');
+            Route::delete('/{donationId}', 'destroy')->middleware('auth:sanctum');
+        });
+    });
+
     Route::prefix('partners')->group(function () {
         Route::controller(PartnerController::class)->group(function () {
             Route::get('/', 'index');
@@ -176,7 +189,7 @@ Route::prefix('v1')->group(function () {
         Route::controller(SettingsController::class)->group(function () {
             Route::get('/companyassets', 'assetsIndex');
             Route::get('/companyassets/{assetId}', 'assetsInfo');
-            Route::post('/companyassets', 'assetsInfoCreate');//->middleware('auth:sanctum');
+            Route::post('/companyassets', 'assetsInfoCreate'); //->middleware('auth:sanctum');
             Route::put('/companyassets/{infoId}', 'assetsInfoUpdate')->middleware('auth:sanctum');
             // Route::put('/{adminId}/companyassets', 'companyInfoAssetsCreate')->middleware('auth:sanctum');
             // Route::delete('/{blogId}', 'destroy')->middleware('auth:sanctum');
