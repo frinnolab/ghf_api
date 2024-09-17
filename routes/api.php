@@ -84,7 +84,6 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-
     //Projects Management Endpoints
     Route::prefix('projects')->group(function () {
         Route::controller(ProjectController::class)->group(function () {
@@ -97,7 +96,6 @@ Route::prefix('v1')->group(function () {
             //Projects Assets Management
         });
     });
-
 
     //Partners Management Endpoints
     Route::prefix('donations')->group(function () {
