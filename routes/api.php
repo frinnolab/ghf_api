@@ -106,7 +106,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/types', 'index_types');
             Route::get('/currencies', 'index_currencies');
             Route::get('/{donationId}', 'show');
-            Route::post('/', 'store')->middleware('auth:sanctum');
+            Route::post('/', 'store');
             Route::put('/{donationId}', 'update')->middleware('auth:sanctum');
             Route::delete('/{donationId}', 'destroy')->middleware('auth:sanctum');
         });

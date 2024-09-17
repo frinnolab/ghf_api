@@ -137,11 +137,10 @@ class DonationsController extends Controller
     public function show(string $id)
     {
         //
-        $response = [];
         $data = Donation::where('donation_id', '=', $id)->first();
 
         if ($data == null) {
-            return response($response, Response::HTTP_NOT_FOUND);
+            return response([], Response::HTTP_NOT_FOUND);
         }
 
         $response = [
