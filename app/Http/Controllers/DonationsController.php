@@ -57,7 +57,8 @@ class DonationsController extends Controller
             $d = [
                 "donorCurrencyId" => $value->donor_currency_id,
                 "title" => $value->title,
-                "shortname" => $value->short_name
+                "shortname" => $value->short_name,
+                "type" => $value->type
             ];
 
             array_push($response, $d);
@@ -156,7 +157,7 @@ class DonationsController extends Controller
             "donorType" => $data->donor_type
         ];
 
-        response($response, Response::HTTP_OK);
+        return response($response, Response::HTTP_OK);
     }
 
     /**
