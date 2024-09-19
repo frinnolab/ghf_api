@@ -23,7 +23,6 @@ class Donation extends Model
         "amount_pledged",
         "donor_currency_type",
         "donor_type",
+        "donor_status_type",
     ];
-
-
 }

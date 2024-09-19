@@ -118,7 +118,8 @@ class DonationsController extends Controller
                 "mobile" => $value->mobile,
                 "amountPledged" => $value->amount_pledged,
                 "donorCurrencyType" => $value->donor_currency_type,
-                "donorType" => $value->donor_type
+                "donorType" => $value->donor_type,
+                "statusType" => $value->donor_status_type
             ];
 
             array_push($response, $d);
@@ -144,6 +145,7 @@ class DonationsController extends Controller
             "amount_pledged" => new Decimal($request->input('amountPledged')),
             "donor_currency_type" => $request->input('donorCurrencyType'),
             "donor_type" => $request->input('donorType'),
+            "donor_status_type" => $request->input('statusType'),
         ];
 
         $data = new Donation($newData);
@@ -180,7 +182,8 @@ class DonationsController extends Controller
             "mobile" => $data->mobile,
             "amountPledged" => $data->amount_pledged,
             "donorCurrencyType" => $data->donor_currency_type,
-            "donorType" => $data->donor_type
+            "donorType" => $data->donor_type,
+            "statusType" => $data->donor_status_type
         ];
 
         return response($response, Response::HTTP_OK);
@@ -209,6 +212,7 @@ class DonationsController extends Controller
         $data->amount_pledged = new Decimal($request->input('amountPledged'))  ?? $data->amount_pledged;
         $data->donor_currency_type = $request->input('donorCurrencyType') ?? $data->donor_currency_type;
         $data->donor_type = $request->input('donorType') ?? $data->donor_type;
+        $data->donor_status_type = $request->input('statusType') ?? $data->donor_status_type;
 
         $data->save();
 
