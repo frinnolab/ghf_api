@@ -97,10 +97,11 @@ Route::prefix('v1')->group(function () {
         });
     });
 
-    //Partners Management Endpoints
+    //Donations Management Endpoints
     Route::prefix('donations')->group(function () {
         Route::controller(DonationsController::class)->group(function () {
             Route::get('/', 'index');
+            Route::get('/status', 'index_status');
             Route::get('/types', 'index_types');
             Route::get('/currencies', 'index_currencies');
             Route::get('/{donationId}', 'show');

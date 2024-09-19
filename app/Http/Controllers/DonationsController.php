@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Donations\Donation;
 use App\Models\Donations\DonorCurrencyType;
+use App\Models\Donations\DonorStatus;
 use App\Models\Donations\DonorType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -14,6 +15,31 @@ class DonationsController extends Controller
     /**
      * Display a listing of the resource.
      */
+    public function index_status()
+    {
+        //
+        $response = [];
+
+        $data = DonorStatus::all();
+
+        if ($data == null) {
+            return response($response, Response::HTTP_NO_CONTENT);
+        }
+
+        //format data
+
+        foreach ($data as $value) {
+            $d = [
+                "donorStatusId" => $value->donor_status_id,
+                "title" => $value->title,
+                "type" => $value->type
+            ];
+
+            array_push($response, $d);
+        }
+
+        return response($response, Response::HTTP_OK);
+    }
     public function index_types()
     {
         //
