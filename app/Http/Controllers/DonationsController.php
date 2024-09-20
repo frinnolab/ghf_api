@@ -192,11 +192,11 @@ class DonationsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $donationId)
     {
         //
         $response = [];
-        $data = Donation::where('donation_id', '=', $id)->first();
+        $data = Donation::where('donation_id', '=', $donationId)->first();
 
         if ($data == null) {
             return response($response, Response::HTTP_NOT_FOUND);
