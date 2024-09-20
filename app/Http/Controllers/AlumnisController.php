@@ -25,8 +25,26 @@ class AlumnisController extends Controller
         }
 
         foreach ($alumnis as $alumni) {
+            $profile = Profile::where('profile_id', '=', $alumni->profile_id)->first();
+            if ($profile->avatar_url != '' or $profile->avatar_url != null) {
+                $imgUrl = asset(Storage::url($profile->avatar_url));
+            }
+
+            $profileData = [
+                'profileId' => $profile->profile_id,
+                'avatarUrl' => $profile->$imgUrl,
+                'email' => $profile->email,
+                'firstname' => $profile->firstname,
+                'lastname' => $profile->lastname,
+                'position' => $profile->position,
+                'mobile' => $profile->mobile,
+                'roleType' => $profile->roleType,
+            ];
+
+
             $data = [
                 "profileId" => $alumni->profile_id,
+                "alumniProfile" => $profileData,
                 "age" => $alumni->age,
                 "participationSchool" => $alumni->participation_school,
                 "participationYear" => $alumni->participation_year,
@@ -133,9 +151,27 @@ class AlumnisController extends Controller
             return response(['Alumni Profile not found'], Response::HTTP_NOT_FOUND);
         }
 
+        $imgUrl = null;
+        if ($profile->avatar_url != null || $profile->avatar_url != '') {
+
+            $imgUrl = asset(Storage::url($profile->avatar_url));
+        }
+
+        $profileData = [
+            'profileId' => $profile->profile_id,
+            'avatarUrl' => $imgUrl,
+            'email' => $profile->email ?? '',
+            'mobile' => $profile->mobile ?? '',
+            'firstname' => $profile->firstname ?? '',
+            'lastname' => $profile->lastname ?? '',
+            'position' => $profile->position ?? '',
+            'roleType' => $profile->roleType,
+        ];
+
         //format response
         $response = [
             "profileId" => $alumni->profile_id,
+            "alumniProfile" => $profileData,
             "age" => $alumni->age,
             "participationSchool" => $alumni->participation_school,
             "participationYear" => $alumni->participation_year,
