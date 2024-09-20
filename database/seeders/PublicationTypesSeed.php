@@ -26,7 +26,13 @@ class PublicationTypesSeed extends Seeder
             "value"=>1
         ];
 
-        $data = [$reportsType, $newsLetterType];
+        $studentManualType = [
+            "publish_type_id"=>uuid_create(),
+            "title"=>"Student Manual",
+            "value"=>2
+        ];
+
+        $data = [$studentManualType];
 
         DB::table('publication_types')->insert($data);
     }

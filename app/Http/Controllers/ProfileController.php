@@ -108,7 +108,7 @@ class ProfileController extends Controller
             'mobile' => $request->input('mobile'),
             'email' => $request->input('email'),
             'hashed_password' => password_hash($request->input('email'), HASH_HMAC),
-            'roleType' => $userRole->roleType,
+            'roleType' => $userRole->type
         ]);
 
         $newProfile->save();
