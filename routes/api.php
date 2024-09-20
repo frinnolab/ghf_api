@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AlumnisController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\DonationsController;
@@ -149,6 +150,16 @@ Route::prefix('v1')->group(function () {
             Route::post('/', 'store')->middleware('auth:sanctum');
             Route::put('/{blogId}', 'update')->middleware('auth:sanctum');
             Route::delete('/{blogId}', 'destroy')->middleware('auth:sanctum');
+        });
+    });
+    //Alumni
+    Route::prefix('alumnis')->group(function () {
+        Route::controller(AlumnisController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::get('/{id}', 'show');
+            Route::post('/', 'store')->middleware('auth:sanctum');
+            Route::put('/{id}', 'update')->middleware('auth:sanctum');
+            Route::delete('/{id}', 'destroy')->middleware('auth:sanctum');
         });
     });
 

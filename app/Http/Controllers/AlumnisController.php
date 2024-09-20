@@ -43,6 +43,7 @@ class AlumnisController extends Controller
 
 
             $data = [
+                "alumniId" => $alumni->alumni_id,
                 "profileId" => $alumni->profile_id,
                 "alumniProfile" => $profileData,
                 "age" => $alumni->age,
@@ -80,7 +81,7 @@ class AlumnisController extends Controller
         $path = '';
         $file = null;
 
-        if ($request->input('avatar')) {
+        if ($request->hasFile('avatar')) {
 
             $file = $request->file('avatar');
             if (!$file->isValid()) {
@@ -95,7 +96,7 @@ class AlumnisController extends Controller
             'avatar_url' => $path ?? null,
             'firstname' => $request->input('firstname'),
             'lastname' => $request->input('lastname'),
-            'position' => $request->input('position'),
+            'position' => $request->input('position') ?? null,
             'mobile' => $request->input('mobile'),
             'email' => $request->input('email'),
             'hashed_password' => password_hash($request->input('email'), HASH_HMAC),
