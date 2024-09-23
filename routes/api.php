@@ -157,7 +157,7 @@ Route::prefix('v1')->group(function () {
         Route::controller(AlumnisController::class)->group(function () {
             Route::get('/', 'index');
             Route::get('/{id}', 'show');
-            Route::post('/', 'store')->middleware('auth:sanctum');
+            Route::post('/', 'store');//->middleware('auth:sanctum');
             Route::put('/{id}', 'update')->middleware('auth:sanctum');
             Route::delete('/{id}', 'destroy')->middleware('auth:sanctum');
         });

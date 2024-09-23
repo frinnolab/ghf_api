@@ -25,14 +25,19 @@ class AlumnisController extends Controller
         }
 
         foreach ($alumnis as $alumni) {
+            $imgUrl = null;
             $profile = Profile::where('profile_id', '=', $alumni->profile_id)->first();
+
+            if($profile == null){
+                return response(["Profile not found."], Response::HTTP_NOT_FOUND);
+            }
             if ($profile->avatar_url != '' or $profile->avatar_url != null) {
                 $imgUrl = asset(Storage::url($profile->avatar_url));
             }
 
             $profileData = [
                 'profileId' => $profile->profile_id,
-                'avatarUrl' => $profile->$imgUrl,
+                'avatarUrl' => $imgUrl,
                 'email' => $profile->email,
                 'firstname' => $profile->firstname,
                 'lastname' => $profile->lastname,

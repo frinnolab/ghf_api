@@ -89,7 +89,7 @@ class ProfileController extends Controller
         $path = '';
         $file = null;
 
-        if ($request->hasFile('avatar')) {
+        if ($request->file('avatar')) {
 
             $file = $request->file('avatar');
             if (!$file->isValid()) {

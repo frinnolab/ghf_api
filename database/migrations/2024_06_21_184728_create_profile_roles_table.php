@@ -21,11 +21,19 @@ return new class extends Migration
       */
     public function up(): void
     {
-        Schema::create('profile_roles', function (Blueprint $table) {
-            $table->uuid('profile_role_id')->primary();
-            $table->string('name')->default('');
-            $table->integer('type')->default(0);
-            $table->timestamps();
+        // Schema::create('profile_roles', function (Blueprint $table) {
+        //     $table->uuid('profile_role_id')->primary();
+        //     $table->string('name')->default('');
+        //     $table->integer('type')->default(0);
+        //     $table->timestamps();
+        //     $table->softDeletes();
+        // });
+        Schema::table('profile_roles', function (Blueprint $table) {
+            //$table->uuid('profile_role_id')->primary();
+            $table->string('name')->change()->nullable();
+            //$table->integer('type')->change()->nullable();
+            //$table->timestamps()->change()->nullable();
+            $table->softDeletes()->nullable();
         });
     }
 

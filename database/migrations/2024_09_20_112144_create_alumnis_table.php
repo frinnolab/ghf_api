@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('alumnis', function (Blueprint $table) {
             $table->uuid('alumni_id')->primary();
+            $table->string('profile_id')->nullable();
             $table->integer('age')->default(0);
             $table->string('participation_school')->nullable();
             $table->integer('participation_year')->default(0);
@@ -21,6 +22,10 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
         });
+
+
+        Schema::table('alumnis', function (Blueprint $table) {
+        });
     }
 
     /**
@@ -28,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('alumnis');
+        //Schema::dropIfExists('alumnis');
     }
 };
