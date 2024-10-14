@@ -25,21 +25,8 @@ class PublicationsController extends Controller
 
         if ($data == null) {
             return response($response, Response::HTTP_NO_CONTENT);
-        } 
-        //Reports
-        // if ($request->query("publishType", 0)) {
-        //     $reportType = $request->query("type", 0);
-        //     $data = $data->where('publish_type', '=', $reportType);
-        // }
-
-
-        //News
-        // if ($request->query("publishType", 1)) {
-        //     $newsType = $request->query("type", 1);
-        //     $data = $data->where('publish_type', '=', $newsType);
-        // }
-
-
+        }
+        
         //Format Response
         foreach ($data as $value) {
 

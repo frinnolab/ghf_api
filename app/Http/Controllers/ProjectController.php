@@ -90,10 +90,10 @@ class ProjectController extends Controller
 
         $programme =  DB::table('programs')->first();
 
-        $path = '';
+        $path = null;
         $file = null;
 
-        if ($request->input('image')) {
+        if ($request->hasFile('image')) {
             $file = $request->file('image');
             if (!$file->isValid()) {
                 return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);

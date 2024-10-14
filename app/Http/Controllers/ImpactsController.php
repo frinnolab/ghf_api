@@ -35,9 +35,13 @@ class ImpactsController extends Controller
 
         foreach ($datas as $data) {
 
-            $asset = ImpactAsset::where('impact_id', '=', $data->impact_id)->first();
+            $assetThumb = ImpactAsset::where('impact_id', '=', $data->impact_id)->first();
 
-            $asset_url = asset(Storage::url($asset->asset_url)) ?? null;
+            $asset_url = null;
+
+            if($assetThumb){
+                $asset_url = asset(Storage::url($assetThumb->asset_url));
+            }
             $dataRes = [
                 "impactId" => $data->impact_id,
                 "assetUrl" => $asset_url,
@@ -103,9 +107,15 @@ class ImpactsController extends Controller
             return response([], Response::HTTP_NOT_FOUND);
         }
 
-        $asset = ImpactAsset::where('impact_id', '=', $data->impact_id)->first();
+        $assetThumb = ImpactAsset::where('impact_id', '=', $data->impact_id)->first();
 
-        $asset_url = asset(Storage::url($asset->asset_url)) ?? null;
+        $asset_url = null;
+
+        if($assetThumb){
+
+            $asset_url = asset(Storage::url($assetThumb->asset_url)) ?? null;
+        }
+
 
 
         $response = [
@@ -242,7 +252,7 @@ class ImpactsController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
-        $path = '';
+        $path = null;
         $file = null;
 
         if ($request->hasFile('image')) {
@@ -254,11 +264,7 @@ class ImpactsController extends Controller
             }
 
             $path = Storage::putFile('public/impact_assets', $file);
-        } 
-        // else {
-
-        //     return response([$request->hasFile('image')], Response::HTTP_FOUND);
-        // }
+        }
 
         $impactAsset =  new ImpactAsset([
             "impact_id" => $impact->impact_id,
@@ -271,10 +277,6 @@ class ImpactsController extends Controller
             "assetId" => $impactAsset->impact_asset_id
         ], Response::HTTP_CREATED);
     }
-
-    // public function assets_update(Request $request, string $assetId)
-    // {
-    // }
 
     public function assets_destroy(string $assetId)
     {
