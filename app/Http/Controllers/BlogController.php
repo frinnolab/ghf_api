@@ -16,10 +16,16 @@ class BlogController extends Controller
     public function index(Request $request)
     {
         //
-        $blogs = Blog::all();
+        $blogs = Blog::latest()->get();
 
         if ($blogs == null) {
             return response([], Response::HTTP_NO_CONTENT);
+        }
+
+        $limit = $request->query('limit');
+
+        if(intval($limit)>0){
+            $blogs = $blogs->take($limit);
         }
 
         $response = [];

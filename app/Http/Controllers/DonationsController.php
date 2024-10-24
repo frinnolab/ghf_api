@@ -99,7 +99,7 @@ class DonationsController extends Controller
         //
         $response = [];
 
-        $data = Donation::all();
+        $data = Donation::latest()->get();
 
         if ($data == null) {
             return response($response, Response::HTTP_NO_CONTENT);
@@ -142,10 +142,10 @@ class DonationsController extends Controller
             "company" => $request->input('company'),
             "description" => $request->input('description'),
             "mobile" => $request->input('mobile'),
-            "amount_pledged" => new Decimal($request->input('amountPledged')),
+            "amount_pledged" => new Decimal($request->input('amountPledged') ?? 0),
             "donor_currency_type" => $request->input('donorCurrencyType'),
             "donor_type" => $request->input('donorType'),
-            "donor_status_type" => $request->input('statusType'),
+            "donor_status_type" => intval($request->input('statusType') ?? 0)  ,
         ];
 
         $data = new Donation($newData);

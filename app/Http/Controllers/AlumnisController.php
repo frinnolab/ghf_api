@@ -18,7 +18,7 @@ class AlumnisController extends Controller
     {
         //
         $response = [];
-        $alumnis = Alumni::all();
+        $alumnis = Alumni::latest()->get();
 
         if ($alumnis == null) {
             return response($response, Response::HTTP_NO_CONTENT);

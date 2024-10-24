@@ -15,7 +15,7 @@ class ProfileRolesController extends Controller
     public function index(Request $request)
     {
         //
-        $roles = ProfileRoles::all();
+        $roles = ProfileRoles::latest()->get();
 
         if ($roles == null) {
             return response([], Response::HTTP_NO_CONTENT);

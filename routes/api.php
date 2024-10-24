@@ -95,6 +95,12 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{projectId}', 'destroy')->middleware('auth:sanctum');
 
             //Projects Assets Management
+
+            Route::get('/assets/{projectId}', 'assets_index');
+            Route::get('/assets/{assetId}', 'assets_show');
+            Route::post('/assets/{projectId}', 'assets_store'); //->middleware('auth:sanctum');
+            // Route::put('/assets/{assetId}', 'assets_update');//->middleware('auth:sanctum');
+            Route::delete('assets/{assetId}', 'assets_destroy'); //->middleware('auth:sanctum');
         });
     });
 

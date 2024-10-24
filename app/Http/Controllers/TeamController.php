@@ -18,7 +18,7 @@ class TeamController extends Controller
     public function index()
     {
         //
-        $teams = Team::all();
+        $teams = Team::latest()->get();
 
         if (!$teams) {
             return response([], Response::HTTP_NO_CONTENT);

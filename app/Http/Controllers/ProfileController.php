@@ -16,7 +16,7 @@ class ProfileController extends Controller
     public function index(Request $request)
     {
         //
-        $profiles = Profile::all();
+        $profiles = Profile::latest()->get();
 
         if ($profiles == null) {
             return response([], Response::HTTP_NO_CONTENT);

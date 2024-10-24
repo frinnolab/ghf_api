@@ -17,7 +17,7 @@ class PartnerController extends Controller
     public function index(Request $request)
     {
         //
-        $partners = Partner::all();
+        $partners = Partner::latest()->get();
 
 
         if ($partners == null) {

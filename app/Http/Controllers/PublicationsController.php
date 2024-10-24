@@ -21,7 +21,7 @@ class PublicationsController extends Controller
         $response = [];
         $news = [];
         
-        $data = Publication::all();
+        $data = Publication::latest()->get();
 
         if ($data == null) {
             return response($response, Response::HTTP_NO_CONTENT);
@@ -189,7 +189,7 @@ class PublicationsController extends Controller
             return response(["publishId is required."], Response::HTTP_BAD_REQUEST);
         }
 
-        $assets = PublicationAsset::where('publish_id', '=', $publishId)->get();
+        $assets = PublicationAsset::where('publish_id', '=', $publishId)->latest()->get();
         if($assets == null){
             return response(["No Assests"], Response::HTTP_NO_CONTENT);
         }

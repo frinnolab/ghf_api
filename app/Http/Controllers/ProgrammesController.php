@@ -15,7 +15,7 @@ class ProgrammesController extends Controller
     public function index(Request $request)
     {
 
-        $programmes = Programmes::all();
+        $programmes = Programmes::latest()->get();
 
 
         if ($programmes == null) {

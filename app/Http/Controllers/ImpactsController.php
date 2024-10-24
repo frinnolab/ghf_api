@@ -20,7 +20,7 @@ class ImpactsController extends Controller
 
         $limit = 0;
 
-        $datas = Impact::all();
+        $datas = Impact::latest()->get();
 
 
         if ($datas == null) {
@@ -201,7 +201,7 @@ class ImpactsController extends Controller
             return response(['ImpactId is required'], Response::HTTP_BAD_REQUEST);
         }
 
-        $datas = ImpactAsset::where('impact_id', '=', $impactId)->get();
+        $datas = ImpactAsset::where('impact_id', '=', $impactId)->latest()->get();
 
         if ($datas == null) {
             return response([], Response::HTTP_NO_CONTENT);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Profiles\Profile;
 use App\Models\Programmes\Programmes;
 use App\Models\Projects\Project;
+use App\Models\Projects\ProjectAsset;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,13 +20,19 @@ class ProjectController extends Controller
     public function index(Request $request)
     {
         //
-        $projects = Project::all();
+        $projects = Project::latest()->get();
+
+        $limit = $request->query('limit');
 
 
         if ($projects == null) {
             return response([], Response::HTTP_NO_CONTENT);
         }
         $response = [];
+
+        if($limit > 0){
+            $projects = $projects->take($limit);
+        }
 
 
         foreach ($projects as $project) {
@@ -252,4 +259,107 @@ class ProjectController extends Controller
 
         return response([], Response::HTTP_OK);
     }
+
+    //Assets
+    public function assets_index(string $projectId)
+    {
+
+        $response = [];
+        //$request->validate(['impactId'=>'required']);
+
+        if ($projectId == '' or $projectId == null) {
+            return response(['projectId is required'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $datas = ProjectAsset::where('project_id', '=', $projectId)->latest()->get();
+
+        if ($datas == null) {
+            return response([], Response::HTTP_NO_CONTENT);
+        }
+
+        foreach ($datas as $asset) {
+            $imgUrl = null;
+            if ($asset->asset_url != '' or $asset->asset_url != null) {
+                $imgUrl = asset(Storage::url($asset->asset_url));
+            }
+            $data = [
+                'assetId' => $asset->project_asset_id,
+                'projectId' => $asset->project_id,
+                'assetUrl' => $imgUrl,
+            ];
+
+            array_push($response, $data);
+        }
+
+        return response($response, Response::HTTP_OK);
+    }
+
+    public function assets_show(string $assetId)
+    {
+
+        $data = ProjectAsset::where('project_asset_id', '=', $assetId)->first();
+
+        if ($data == null) {
+            return response([
+                "Asset not found"
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $response = [
+            "assetId" => $data->project_asset_id,
+            "projectId" => $data->project_id,
+            "assetUrl" => asset(Storage::url($data->asset_url))
+        ];
+        return response($response, Response::HTTP_OK);
+    }
+
+    public function assets_store(Request $request, string $projectId)
+    {
+        $project = Project::where('project_id', '=', $projectId)->first();
+
+        if ($project == null) {
+            return response([
+                "Project not found."
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $path = null;
+        $file = null;
+
+        if ($request->hasFile('image')) {
+
+            $file = $request->file('image');
+
+            if (!$file->isValid()) {
+                return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $path = Storage::putFile('public/project_assets/assets', $file);
+        }
+
+        $projectAsset =  new ProjectAsset([
+            "project_id" => $project->project_id,
+            "asset_url" => $path
+        ]);
+
+        $projectAsset->save();
+
+        return response([
+            "assetId" => $projectAsset->project_asset_id
+        ], Response::HTTP_CREATED);
+    }
+
+    public function assets_destroy(string $assetId)
+    {
+        $asset = ProjectAsset::where('project_asset_id', '=', $assetId)->first();
+
+        if ($asset == null) {
+            return response([], Response::HTTP_NOT_FOUND);
+        }
+
+        $asset->delete();
+
+        return response([], Response::HTTP_CREATED);
+    }
+    //Assets End
 }
