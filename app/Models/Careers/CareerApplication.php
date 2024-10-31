@@ -1,29 +1,29 @@
 <?php
 
-namespace App\Models\Profiles;
+namespace App\Models\Careers;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Laravel\Sanctum\HasApiTokens;
 
-class Profile extends Model
+class CareerApplication extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes, HasApiTokens;
+    use HasFactory, HasUuids, SoftDeletes;
 
-    protected $primaryKey = 'profile_id';
+    protected $primaryKey = 'career_app_id';
 
     protected $fillable = [
+        'career_id',
         'avatar_url',
-        'firstname',
         'email',
-        'hashed_password',
-        'position',
+        'firstname',
+        'lastname',
         'mobile',
-        'roleType',
         'biography',
         'city',
         'country',
+        'career_status',//Pending, Declined, Accepted
+        'career_role_type',//Employee = 3 | Volunteer = 4
     ];
 }

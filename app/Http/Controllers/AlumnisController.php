@@ -93,7 +93,7 @@ class AlumnisController extends Controller
                 return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
             }
 
-            $path = Storage::putFile('public/avatars', $file);
+            $path = Storage::putFile('public/alumni', $file);
         }
 
         //Default New User Password = email

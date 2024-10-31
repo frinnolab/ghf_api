@@ -23,12 +23,15 @@ return new class extends Migration
         // });
         Schema::table('profiles', function (Blueprint $table) {
             // $table->renameColumn('profile_pic_url','avatar_url')->nullable();
-            $table->string('position')->change()->nullable();
-            $table->string('firstname')->change()->nullable();
-            $table->string('lastname')->change()->nullable();
-            $table->string('mobile')->change()->nullable();
-            $table->string('email')->change()->nullable();
-            $table->string('avatar_url')->change()->nullable();
+            // $table->string('position')->change()->nullable();
+            // $table->string('firstname')->change()->nullable();
+            // $table->string('lastname')->change()->nullable();
+            // $table->string('mobile')->change()->nullable();
+            // $table->string('email')->change()->nullable();
+            // $table->string('avatar_url')->change()->nullable();
+            $table->string('biography')->nullable();
+            $table->string('city')->nullable();
+            $table->string('country')->nullable();
         });
     }
 

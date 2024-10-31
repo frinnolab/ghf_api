@@ -3,6 +3,7 @@
 use App\Http\Controllers\AlumnisController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\CareersController;
 use App\Http\Controllers\DonationsController;
 use App\Http\Controllers\ImpactsController;
 use App\Http\Controllers\PartnerController;
@@ -188,6 +189,7 @@ Route::prefix('v1')->group(function () {
             Route::delete('/members/{teamId}/{memberId}', 'removeMemberToTeam')->middleware('auth:sanctum');
         });
     });
+ 
 
     //Settings
     Route::prefix('settings')->group(function () {
@@ -229,4 +231,24 @@ Route::prefix('v1')->group(function () {
             Route::delete('assets/{assetId}', 'assets_destroy'); //->middleware('auth:sanctum');
         });
     });
+
+
+    //careerss
+    Route::prefix('careers')->group(function () {
+        Route::controller(CareersController::class)->group(function () {
+            Route::get('/', 'index');
+            Route::get('/{careerId}', 'show');
+            Route::post('/', 'store'); //->middleware('auth:sanctum');
+            Route::put('/{careerId}', 'update'); //->middleware('auth:sanctum');
+            Route::delete('/{careerId}', 'destroy'); //->middleware('auth:sanctum');
+
+
+            Route::get('/{careerId}/applications', 'applications_index');
+            Route::get('/applications/{applicationId}', 'applications_show');
+            Route::post('/{careerId}/applications', 'applications_store'); //->middleware('auth:sanctum');
+            Route::put('/applications/{applicationId}', 'applications_update');//->middleware('auth:sanctum');
+            Route::delete('/applications/{applicationId}', 'applications_destroy'); //->middleware('auth:sanctum');
+        });
+    });
+    
 });
