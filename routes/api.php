@@ -246,8 +246,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/{careerId}/applications', 'applications_index');
             Route::get('/applications/{applicationId}', 'applications_show');
             Route::post('/{careerId}/applications', 'applications_store'); //->middleware('auth:sanctum');
-            Route::put('/applications/{applicationId}', 'applications_update');//->middleware('auth:sanctum');
-            Route::delete('/applications/{applicationId}', 'applications_destroy'); //->middleware('auth:sanctum');
+            Route::put('/applications/{applicationId}', 'applications_update')->middleware('auth:sanctum');
+            Route::delete('/applications/{applicationId}', 'applications_destroy')->middleware('auth:sanctum');
         });
     });
     

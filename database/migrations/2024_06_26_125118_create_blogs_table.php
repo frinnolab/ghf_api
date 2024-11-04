@@ -20,14 +20,18 @@ return new class extends Migration
         //     $table->timestamps();
         //     $table->softDeletes();
         // });
+        // Schema::table('blogs', function (Blueprint $table) {
+        //     //$table->uuid('blog_id')->primary();
+        //     $table->string('thumbnail_url')->default('');
+        //     // $table->string('title')->default('');
+        //     // $table->string('description')->default('');
+        //     // $table->string('author_id');
+        //     // $table->timestamps();
+        //     // $table->softDeletes();
+        // });
+
         Schema::table('blogs', function (Blueprint $table) {
-            //$table->uuid('blog_id')->primary();
-            $table->string('thumbnail_url')->default('');
-            // $table->string('title')->default('');
-            // $table->string('description')->default('');
-            // $table->string('author_id');
-            // $table->timestamps();
-            // $table->softDeletes();
+            $table->longText('description')->change()->nullable();
         });
     }
 

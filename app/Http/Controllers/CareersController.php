@@ -304,7 +304,7 @@ class CareersController extends Controller
             $imgUrl = Storage::putFile('public/profiles', $file);
         }
 
-        $career_apps->career_id = $request->input('careerid');
+        $career_apps->career_id = $request->input('careerId');
         $career_apps->avatar_url = $imgUrl ?? $career_apps->avatar_url;
         $career_apps->email = $request->input('email');
         $career_apps->firstname = $request->input('firstname');
@@ -313,8 +313,8 @@ class CareersController extends Controller
         $career_apps->biography = $request->input('biography');
         $career_apps->city = $request->input('city');
         $career_apps->country = $request->input('country');
-        $career_apps->career_status = $request->input('career_status');
-        $career_apps->career_role_type = $request->input('career_role_type') ?? $career_apps->role_type;
+        $career_apps->career_status =intval($request->input('careerStatus')) ;
+        $career_apps->career_role_type =intval($request->input('careerRoleType') ?? $career_apps->role_type) ;
 
         $career_apps->save();
 

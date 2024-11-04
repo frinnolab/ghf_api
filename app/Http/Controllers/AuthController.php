@@ -95,6 +95,7 @@ class AuthController extends Controller
 
         $profile = new Profile([
             'firstname' => $request->input('firstname'),
+            'lastname' => $request->input('lastname'),
             'email' => $request->input('email'),
             'hashed_password' => password_hash($request->input('password'), HASH_HMAC),
             'roleType' => $roleType,

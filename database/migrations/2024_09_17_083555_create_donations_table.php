@@ -22,19 +22,23 @@ return new class extends Migration
         //     $table->integer('donor_type');
         //     $table->timestamps();
         // });
+        // Schema::table('donations', function (Blueprint $table) {
+        //     // $table->uuid('donation_id')->primary();
+        //     // $table->string('email')->change()->nullable();
+        //     // $table->string('first_name')->change()->nullable();
+        //     // $table->string('last_name')->change()->nullable();
+        //     // $table->string('mobile')->change()->nullable();
+        //     // $table->decimal('amount_pledged')->change()->nullable();
+        //     // $table->integer('donor_currency_type')->change()->default(0);
+        //     // $table->integer('donor_type')->change()->default(0);
+        //     $table->integer('donor_status_type')->default(0);
+        //     // $table->string('description')->change()->nullable();
+        //     // $table->string('company')->change()->nullable();
+        //     //$table->softDeletes();
+        // });
+
         Schema::table('donations', function (Blueprint $table) {
-            // $table->uuid('donation_id')->primary();
-            // $table->string('email')->change()->nullable();
-            // $table->string('first_name')->change()->nullable();
-            // $table->string('last_name')->change()->nullable();
-            // $table->string('mobile')->change()->nullable();
-            // $table->decimal('amount_pledged')->change()->nullable();
-            // $table->integer('donor_currency_type')->change()->default(0);
-            // $table->integer('donor_type')->change()->default(0);
-            $table->integer('donor_status_type')->default(0);
-            // $table->string('description')->change()->nullable();
-            // $table->string('company')->change()->nullable();
-            //$table->softDeletes();
+            $table->longText('description')->change()->nullable();
         });
     }
 

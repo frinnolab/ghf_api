@@ -11,15 +11,19 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('publications', function (Blueprint $table) {
-            $table->uuid('publish_id')->primary();
-            $table->string('title')->nullable();
-            $table->string('description')->nullable();
-            $table->string('author_id')->nullable();
-            $table->integer('publish_type')->default(0);
-            $table->dateTime('publish_date')->nullable();
-            $table->timestamps();
-            $table->softDeletes();
+        // Schema::create('publications', function (Blueprint $table) {
+        //     $table->uuid('publish_id')->primary();
+        //     $table->string('title')->nullable();
+        //     $table->string('description')->nullable();
+        //     $table->string('author_id')->nullable();
+        //     $table->integer('publish_type')->default(0);
+        //     $table->dateTime('publish_date')->nullable();
+        //     $table->timestamps();
+        //     $table->softDeletes();
+        // });
+
+        Schema::table('publications', function (Blueprint $table) {
+            $table->longText('description')->change()->nullable();
         });
     }
 

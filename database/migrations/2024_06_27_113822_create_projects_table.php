@@ -31,8 +31,9 @@ return new class extends Migration
         //     $table->renameColumn('name', 'title')->default('');
         // });
         Schema::table('projects', function (Blueprint $table) {
-            $table->integer('status')->nullable();
-            //$table->string('thumbnail_url')->nullable();
+            //$table->integer('status')->nullable();
+            $table->longText('description')->change()->nullable();
+
         });
     }
 

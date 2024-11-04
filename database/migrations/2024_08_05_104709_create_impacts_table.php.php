@@ -12,18 +12,22 @@ return new class extends Migration
     public function up(): void
     {
         //
-        Schema::create('impacts', function (Blueprint $table) {
-            $table->uuid('impact_id')->primary();
-            $table->string('title')->nullable();
-            $table->string('description')->nullable();
-            $table->string('school_name')->nullable();
-            $table->string('school_region')->nullable();
-            $table->string('school_district')->nullable();
-            $table->integer('student_girls')->default(0);
-            $table->integer('student_boys')->default(0);
-            $table->integer('student_total')->default(0);
-            $table->timestamps();
-            $table->softDeletes();
+        // Schema::create('impacts', function (Blueprint $table) {
+        //     $table->uuid('impact_id')->primary();
+        //     $table->string('title')->nullable();
+        //     $table->string('description')->nullable();
+        //     $table->string('school_name')->nullable();
+        //     $table->string('school_region')->nullable();
+        //     $table->string('school_district')->nullable();
+        //     $table->integer('student_girls')->default(0);
+        //     $table->integer('student_boys')->default(0);
+        //     $table->integer('student_total')->default(0);
+        //     $table->timestamps();
+        //     $table->softDeletes();
+        // });
+
+        Schema::table('impacts', function (Blueprint $table) {
+            $table->longText('description')->change()->nullable();
         });
     }
 

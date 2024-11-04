@@ -21,11 +21,7 @@ return new class extends Migration
         //     $table->softDeletes();
         // });
         Schema::table('partners', function (Blueprint $table) {
-            // $table->string('logo_url')->nullable()->change();
-            // $table->string('name')->nullable()->change();
-            // $table->string('description')->nullable()->change();
-            // $table->integer('start_year')->nullable();
-            // $table->integer('end_year')->nullable();
+            $table->longText('description')->change()->nullable();
         });
     }
 
