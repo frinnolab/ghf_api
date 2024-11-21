@@ -32,6 +32,7 @@ class CareersController extends Controller
                 'description' => $ca->description,
                 'requirements' => $ca->requirements,
                 'careerType' => $ca->career_type,
+                'careerValidity' => $ca->career_validity,
             ];
 
             array_push($data, $d);
@@ -51,7 +52,8 @@ class CareersController extends Controller
             'position' => $request->input('position'),
             'description' => $request->input('description'),
             'requirements' => $request->input('description'),
-            'career_type' => intval($request->input('careerType') ?? 0)
+            'career_type' => intval($request->input('careerType') ?? 0),
+            'career_validity' => intval($request->input('careerValidity') ?? 0)
         ]);
 
         $newCar->save();
@@ -102,7 +104,7 @@ class CareersController extends Controller
         $career->position = $request->input('position');
         $career->description = $request->input('description');
         $career->career_type = intval($request->input('careerType') ?? $career->career_type);
-        $career->career_validity = intval($request->input('careerValidity') ?? $career->career_validity);
+        $career->career_validity = intval($request->input('careerValidity') ?? $career->career_validity ?? 0);
         $career->requirements = $request->input('requirements');
 
         $career->save();
