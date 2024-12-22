@@ -286,6 +286,7 @@ class ProjectController extends Controller
                 'assetId' => $asset->project_asset_id,
                 'projectId' => $asset->project_id,
                 'assetUrl' => $imgUrl,
+                'videoUrl' => $asset->video_url
             ];
 
             array_push($response, $data);
@@ -308,7 +309,8 @@ class ProjectController extends Controller
         $response = [
             "assetId" => $data->project_asset_id,
             "projectId" => $data->project_id,
-            "assetUrl" => asset(Storage::url($data->asset_url))
+            "assetUrl" => asset(Storage::url($data->asset_url)),
+            'videoUrl' => $data->video_url
         ];
         return response($response, Response::HTTP_OK);
     }
@@ -339,7 +341,8 @@ class ProjectController extends Controller
 
         $projectAsset =  new ProjectAsset([
             "project_id" => $project->project_id,
-            "asset_url" => $path
+            "asset_url" => $path,
+            'video_url' => $request->input('videoUrl') 
         ]);
 
         $projectAsset->save();

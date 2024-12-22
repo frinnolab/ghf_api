@@ -49,6 +49,7 @@ class ImpactsController extends Controller
                 "description" => $data->description,
                 "schoolName" => $data->school_name,
                 "schoolRegion" => $data->school_region,
+                "schoolsTotal" => $data->school_reached_total,
                 "schoolDistrict" => $data->school_district,
                 "studentGirls" => $data->student_girls,
                 "studentBoys" => $data->student_boys,
@@ -76,6 +77,7 @@ class ImpactsController extends Controller
             "school_name" => $request->input('schoolName'),
             "school_region" => $request->input('schoolRegion'),
             "school_district" => $request->input('schoolDistrict'),
+            "school_reached_total" => intval($request->input('schoolsTotal')) ?? 0,
             "student_boys" => intval($request->input('studentBoys') ?? 0),
             "student_girls" => intval($request->input('studentGirls') ?? 0),
         ]);
@@ -129,6 +131,8 @@ class ImpactsController extends Controller
             "studentGirls" => $data->student_girls,
             "studentBoys" => $data->student_boys,
             "studentsTotal" => $data->student_total,
+            "schoolsTotal" => $data->school_reached_total,
+            //"school_reached_total" => intval($request->input('schoolsTotal')) ?? 0,
         ];
 
         return response($response);
@@ -152,6 +156,7 @@ class ImpactsController extends Controller
         $data->school_region = $request->input('schoolRegion') ?? $data->school_region;
         $data->school_district = $request->input('schoolDistrict') ?? $data->school_district;
         $data->student_boys = intval($request->input('studentBoys') ?? $data->student_boys);
+        $data->school_reached_total = intval($request->input('schoolsTotal') ?? $data->school_reached_total);
         $data->student_girls = intval($request->input('studentGirls') ?? $data->student_girls);
         $data->student_total = intval($data->student_boys + $data->student_girls);
 

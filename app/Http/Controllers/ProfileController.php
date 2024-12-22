@@ -32,7 +32,7 @@ class ProfileController extends Controller
 
         foreach ($profiles as $profile) {
             $imgUrl = null;
-            if ($profile->avatar_url != '' or $profile->avatar_url != null) {
+            if ($profile->avatar_url) {
                 $imgUrl = asset(Storage::url($profile->avatar_url));
             }
             $data = [
@@ -127,7 +127,7 @@ class ProfileController extends Controller
     public function show(string $profileId)
     {
         //
-        if ($profileId == '') {
+        if (!$profileId) {
             return response('ProfileId is required', Response::HTTP_BAD_REQUEST);
         }
 
@@ -138,7 +138,7 @@ class ProfileController extends Controller
         }
 
         $imgUrl = null;
-        if ($profile->avatar_url != null || $profile->avatar_url != '') {
+        if ($profile->avatar_url) {
 
             $imgUrl = asset(Storage::url($profile->avatar_url));
         }

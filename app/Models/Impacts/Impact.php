@@ -19,6 +19,7 @@ class Impact extends Model
         "school_name",
         "school_region",
         "school_district",
+        "school_reached_total",
         "student_boys",
         "student_girls",
         "student_total",

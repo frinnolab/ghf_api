@@ -163,7 +163,7 @@ Route::prefix('v1')->group(function () {
     Route::prefix('alumnis')->group(function () {
         Route::controller(AlumnisController::class)->group(function () {
             Route::get('/', 'index');
-            Route::get('/{id}', 'show');
+            Route::get('/{id}/{profileId}', 'show');
             Route::post('/', 'store');//->middleware('auth:sanctum');
             Route::put('/{id}', 'update')->middleware('auth:sanctum');
             Route::delete('/{id}', 'destroy')->middleware('auth:sanctum');

@@ -8,6 +8,7 @@ use App\Models\Profiles\ProfileRoles;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class AlumnisController extends Controller
 {
@@ -19,6 +20,9 @@ class AlumnisController extends Controller
         //
         $response = [];
         $alumnis = Alumni::latest()->get();
+        $dataNew = [];
+
+
 
         if ($alumnis == null) {
             return response($response, Response::HTTP_NO_CONTENT);
@@ -26,24 +30,27 @@ class AlumnisController extends Controller
 
         foreach ($alumnis as $alumni) {
             $imgUrl = null;
-            $profile = Profile::where('profile_id', '=', $alumni->profile_id)->first();
+            $profile = null;
 
-            if($profile == null){
-                return response(["Profile not found."], Response::HTTP_NOT_FOUND);
+            if ($alumni->profile_id != null) {
+
+                // $profile = Profile::where("profile_id", "=", $alumni->profile_id)->get();
+                $profile = DB::table('profiles')->where('profile_id', '=', $alumni->profile_id)->first();
             }
-            if ($profile->avatar_url != '' or $profile->avatar_url != null) {
+
+            if ($profile->avatar_url != null ||  $profile->avatar_url != "") {
                 $imgUrl = asset(Storage::url($profile->avatar_url));
             }
 
             $profileData = [
                 'profileId' => $profile->profile_id,
-                'avatarUrl' => $imgUrl,
-                'email' => $profile->email,
-                'firstname' => $profile->firstname,
-                'lastname' => $profile->lastname,
-                'position' => $profile->position,
-                'mobile' => $profile->mobile,
-                'roleType' => $profile->roleType,
+                'avatarUrl' => $imgUrl ?? null,
+                'email' => $profile->email ?? null,
+                'firstname' => $profile->firstname ?? null,
+                'lastname' => $profile->lastname ?? null,
+                'position' => $profile->position ?? null,
+                'mobile' => $profile->mobile ?? null,
+                'roleType' => $profile->roleType ?? null,
             ];
 
 
@@ -140,25 +147,39 @@ class AlumnisController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(string $id, string $profileId)
     {
         //
         $response = [];
+        $profile = null;
+        $imgUrl = null;
         $alumni = Alumni::where('alumni_id', '=', $id)->first();
+        $alumniProfile = Profile::where('profile_id', '=', $profileId)->first();
 
         if ($alumni == null) {
             return response(['Alumni not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $profile = Profile::where('profile_id', '=', $alumni->profile_id)->first();
+        if ($alumniProfile == null) {
 
-
-        if ($profile == null) {
-            return response(['Alumni Profile not found'], Response::HTTP_NOT_FOUND);
+            return response([
+                "alumniId" => $id,
+                "alumniProfileId" => $profileId,
+            ], Response::HTTP_OK);
+            //return response(['Alumni Profile not found'], Response::HTTP_NOT_FOUND);
         }
 
-        $imgUrl = null;
-        if ($profile->avatar_url != null || $profile->avatar_url != '') {
+        if ($alumni->profile_id) {
+
+            $profile = Profile::where('profile_id', '=', $alumni->profile_id)->first();
+
+            //            return response([$profile]);
+            if ($profile == null) {
+                return response(['Alumni Profile not found'], Response::HTTP_NOT_FOUND);
+            }
+        }
+
+        if (strlen($profile->avatar_url) > 0) {
 
             $imgUrl = asset(Storage::url($profile->avatar_url));
         }
@@ -166,11 +187,11 @@ class AlumnisController extends Controller
         $profileData = [
             'profileId' => $profile->profile_id,
             'avatarUrl' => $imgUrl,
-            'email' => $profile->email ?? '',
-            'mobile' => $profile->mobile ?? '',
-            'firstname' => $profile->firstname ?? '',
-            'lastname' => $profile->lastname ?? '',
-            'position' => $profile->position ?? '',
+            'email' => $profile->email,
+            'mobile' => $profile->mobile,
+            'firstname' => $profile->firstname,
+            'lastname' => $profile->lastname,
+            'position' => $profile->position,
             'roleType' => $profile->roleType,
         ];
 

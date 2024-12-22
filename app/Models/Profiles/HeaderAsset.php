@@ -1,21 +1,21 @@
 <?php
 
-namespace App\Models\Projects;
+namespace App\Models\Profiles;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class ProjectAsset extends Model
+class HeaderAsset extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
+    use HasFactory, HasUuids, SoftDeletes, Prunable;
 
-    protected $primaryKey = 'project_asset_id';
+    protected $primaryKey =  'header_asset_id';
 
     protected $fillable = [
-        'project_id',
         'asset_url',
-        'video_url'
+        'asset_section_type'
     ];
 }
