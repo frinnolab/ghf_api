@@ -106,7 +106,7 @@ class PublicationsController extends Controller
             "description" => $data->description,
             "publishType" => $data->publish_type,
             "publishDate" => $data->publish_date,
-            "authorId" => $data->author_id
+            "authorId" => $data->author_id,
         ];
 
         return response($response, Response::HTTP_OK);
@@ -200,7 +200,8 @@ class PublicationsController extends Controller
                 "publishId" => $asset->publish_id,
                 "title" => $asset->title,
                 "assetId" => $asset->publish_asset_id,
-                "assetUrl" => asset(Storage::url($asset->asset_url)) ?? null
+                "assetUrl" => asset(Storage::url($asset->asset_url)) ?? null,
+                "assetType" => $asset->type ?? null
             ];
 
             array_push($assetResponse, $data);
@@ -229,7 +230,7 @@ class PublicationsController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
-        $path = '';
+        $path = null;
         $file = null;
 
         if ($request->hasFile('doc')) {
@@ -245,7 +246,8 @@ class PublicationsController extends Controller
         $asset = new PublicationAsset([
             "title" => $request->input('title'),
             "publish_id" => $pub->publish_id,
-            "asset_url" => $path
+            "asset_url" => $path,
+            "type" => $request->input('type'),
         ]);
 
         $asset->save();

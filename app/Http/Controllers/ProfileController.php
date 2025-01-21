@@ -86,7 +86,7 @@ class ProfileController extends Controller
             return response('Role not found', Response::HTTP_NOT_FOUND);
         }
 
-        $path = '';
+        $path = null;
         $file = null;
 
         if ($request->file('avatar')) {
@@ -178,10 +178,20 @@ class ProfileController extends Controller
             $profile->hashed_password = $request->input('password') != '' ? password_hash($request->input('password'), HASH_HMAC) : $profile->hashed_password;
         }
 
-        $path = '';
+        $path = null;
         $file = null;
 
-        if ($request->hasFile('avatar')) {
+        // if ($request->hasFile('avatar')) {
+
+        //     $file = $request->file('avatar');
+        //     if (!$file->isValid()) {
+        //         return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+        //     }
+
+        //     $path = Storage::putFile('public/avatars', $file);
+        // }
+
+        if ($request->file('avatar')) {
 
             $file = $request->file('avatar');
             if (!$file->isValid()) {
@@ -191,7 +201,8 @@ class ProfileController extends Controller
             $path = Storage::putFile('public/avatars', $file);
         }
 
-        $profile->avatar_url = $path ?? null;
+
+        $profile->avatar_url = $path;
 
         $profile->save();
 

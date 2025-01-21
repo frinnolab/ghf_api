@@ -17,6 +17,7 @@ class PublicationAsset extends Model
         'title',
         'publish_id',
         'asset_url',
+        'type',
     ];
 
 }

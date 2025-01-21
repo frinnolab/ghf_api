@@ -25,11 +25,11 @@ class SettingsController extends Controller
         $logoAssetUrl = null;
         $videoAssetUrl = null;
 
-        if ($data->logoUrl != null) {
+        if ($data->logo_Url != null || "") {
             $logoAssetUrl = asset(Storage::url($data->logo_Url));
         }
 
-        if ($data->introVideoUrl != null) {
+        if ($data->intro_VideoUrl != null || "") {
             $videoAssetUrl = asset(Storage::url($data->intro_VideoUrl));
         }
 
@@ -51,7 +51,8 @@ class SettingsController extends Controller
     }
 
 
-    public function companyInfoUpdate(Request $request, string $infoId) {
+    public function companyInfoUpdate(Request $request, string $infoId)
+    {
 
         $data = CompanyInfo::where('id', '=', $infoId)->first();
         //$data = CompanyInfo::all()->first();
@@ -94,6 +95,8 @@ class SettingsController extends Controller
             }
 
             $path = Storage::putFile('public/company_info/logo_assets', $file);
+
+            $data->logo_Url = $path;
         }
 
         $videopath = null;
@@ -102,15 +105,14 @@ class SettingsController extends Controller
         if ($request->hasFile('videoAsset')) {
 
             $videofile = $request->file('videoAsset');
-            if (!$file->isValid()) {
+            if (!$videofile->isValid()) {
                 return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
             }
 
             $videopath = Storage::putFile('public/company_info/video_assets', $videofile);
+            $data->intro_VideoUrl = $videopath;
         }
 
-        $data->logo_Url = $path;
-        $data->intro_VideoUrl = $videopath ;
         $data->save();
 
         return response([], Response::HTTP_CREATED);
