@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Profiles\Profile;
 use App\Models\Publications\Publication;
 use App\Models\Publications\PublicationAsset;
+use App\Models\Publications\PublicationSubscriber;
+// use App\Models\publications\PublicationSubscriber;
 use App\Models\Publications\PublicationType;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -19,28 +21,44 @@ class PublicationsController extends Controller
     {
         //
         $response = [];
-        $news = [];
-        
+
         $data = Publication::latest()->get();
 
         if ($data == null) {
             return response($response, Response::HTTP_NO_CONTENT);
         }
-        
+
+
+
+
         //Format Response
         foreach ($data as $value) {
+            //get asset
 
+            $pubAsset = PublicationAsset::where('publish_id', '=', $value->publish_id)->first();
+
+            $filePath = null;
+            if ($pubAsset != null) {
+                //continue;
+                if ($pubAsset->asset_url) {
+                    $filePath = asset(Storage::url($pubAsset->asset_url));
+                }
+            }
             $d = [
                 "publishId" => $value->publish_id,
                 "title" => $value->title,
                 "description" => $value->description,
                 "publishType" => $value->publish_type,
                 "publishDate" => $value->publish_date,
+                "assetUrl" => $filePath,
                 "authorId" => $value->author_id
             ];
             array_push($response, $d);
         }
-        
+
+        //dump($response);
+
+
         return response($response, Response::HTTP_OK);
     }
 
@@ -99,6 +117,17 @@ class PublicationsController extends Controller
             return response($response, Response::HTTP_NOT_FOUND);
         }
 
+        // //get asset file
+
+        // $pubAsset = PublicationAsset::where('publish_id', '=', $data->publish_id)->first();
+
+
+        // $filePath = null;
+
+        // if ($pubAsset->asset_url) {
+        //     $filePath = asset(Storage::url($pubAsset->asset_url));
+        // }
+
         //format response
         $response = [
             "publishId" => $data->publish_id,
@@ -106,7 +135,7 @@ class PublicationsController extends Controller
             "description" => $data->description,
             "publishType" => $data->publish_type,
             "publishDate" => $data->publish_date,
-            "authorId" => $data->author_id
+            "authorId" => $data->author_id,
         ];
 
         return response($response, Response::HTTP_OK);
@@ -190,23 +219,34 @@ class PublicationsController extends Controller
         }
 
         $assets = PublicationAsset::where('publish_id', '=', $publishId)->latest()->get();
-        if($assets == null){
+        if ($assets == null) {
             return response(["No Assests"], Response::HTTP_NO_CONTENT);
         }
 
+
+        $filePath = null;
+
         foreach ($assets as $asset) {
+
+            if ($asset->asset_url) {
+                $filePath = asset(Storage::url($asset->asset_url));
+            }
 
             $data = [
                 "publishId" => $asset->publish_id,
                 "title" => $asset->title,
                 "assetId" => $asset->publish_asset_id,
-                "assetUrl" => asset(Storage::url($asset->asset_url)) ?? null
+                "assetUrl" => $filePath,
+                "assetType" => $asset->type ?? null
             ];
 
             array_push($assetResponse, $data);
         }
 
         return response($assetResponse, Response::HTTP_OK);
+        // ->header('Access-Control-Allow-Origin', 'http://localhost:5173')
+        // ->header('Access-Control-Allow-Origin', 'https://ghftz.or.tz')
+        // ->header('Access-Control-Allow-Origin', 'http://ghftz.or.tz');
     }
 
     /**
@@ -229,7 +269,7 @@ class PublicationsController extends Controller
             ], Response::HTTP_NOT_FOUND);
         }
 
-        $path = '';
+        $path = null;
         $file = null;
 
         if ($request->hasFile('doc')) {
@@ -245,7 +285,8 @@ class PublicationsController extends Controller
         $asset = new PublicationAsset([
             "title" => $request->input('title'),
             "publish_id" => $pub->publish_id,
-            "asset_url" => $path
+            "asset_url" => $path,
+            "type" => $request->input('type'),
         ]);
 
         $asset->save();
@@ -260,16 +301,49 @@ class PublicationsController extends Controller
      */
     public function assets_show(string $assetId)
     {
-        //
-        $data = PublicationAsset::where('publish_asset_id','=',$assetId)->first();
 
+        dump($assetId);
+        $data = PublicationAsset::where('publish_asset_id', '=', $assetId)->first();
         if ($data == null) {
             return response([
                 "Asset not found"
             ], Response::HTTP_NOT_FOUND);
         }
 
-        return response()->download($data->asset_url);
+        dd($data);
+
+        return response([$data]);
+
+
+        //return response()->download(storage_path("app/" . $data->asset_url));
+
+        // if (!Storage::exists($data->asset_url)) {
+        //     return response()->json(['message' => 'File not found'], Response::HTTP_NOT_FOUND);
+        // }
+
+        // $DATA1 = [
+        //     $assetId,
+        //     $data
+        // ];
+
+        // dd($data);
+
+        // // Get the file content
+        // $file = Storage::get($data->asset_url);
+        // $mimeType = Storage::mimeType($file);
+
+        // $data2 = [
+        //     $file,
+        //     $mimeType
+        // ];
+
+        // dd($data2);
+
+        // return response($file, 200)
+        //     ->header('Content-Type', $mimeType)
+        //     ->header('Content-Disposition', 'inline; filename="' . $assetId . '.pdf"');
+
+        //return response()->storage_path("app/" . $data->asset_url);
     }
 
     /**
@@ -286,7 +360,7 @@ class PublicationsController extends Controller
     public function assets_destroy(string $assetId)
     {
         //
-        $data = PublicationAsset::where('publish_asset_id','=',$assetId)->first();
+        $data = PublicationAsset::where('publish_asset_id', '=', $assetId)->first();
 
         if ($data == null) {
             return response([
@@ -297,6 +371,151 @@ class PublicationsController extends Controller
         $data->delete();
 
         return response([], Response::HTTP_CREATED);
+    }
 
+    //Subscriptions Endpoints
+
+    /**
+     * Display a listing of the resource.
+     */
+    public function subs_index(Request $request)
+    {
+        //
+        $subsResponse = [];
+
+        $pubs = PublicationSubscriber::latest()->get();
+        if ($pubs == null) {
+            return response(["No Subscribers found"], Response::HTTP_NO_CONTENT);
+        }
+
+        foreach ($pubs as $asset) {
+
+            $data = [
+                "subscriberId" => $asset->subscriberId,
+                "email" => $asset->email,
+                "isSubscribed" => boolval($asset->isSubscribed ?? false),
+            ];
+
+            array_push($subsResponse, $data);
+        }
+
+        return response($subsResponse, Response::HTTP_OK);
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function subs_store(Request $request)
+    {
+
+        // $asset = new PublicationSubscriber([
+        //     "email" => $request->input('email'),
+        //     "isSubscribed" => boolval($request->input('isSubscribed') ?? false),
+        // ]);
+
+        $pubSub = new PublicationSubscriber([
+            "email" => $request->input('email'),
+            "isSubscribed" => boolval($request->input('isSubscribed') ?? false),
+        ]);
+
+        $pubSub->save();
+
+        return response([
+            "subscriberId" => $pubSub->subscriberId
+        ], Response::HTTP_CREATED);
+    }
+
+    /**
+     * Display the specified resource./Download
+     */
+    public function subs_show(string $subscriberId)
+    {
+        $data = PublicationSubscriber::where('subscriberId', '=', $subscriberId)->first();
+        if ($data == null) {
+            return response([
+                "Subscriber not found"
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $response = [
+            "subscriberId" => $data->subscriberId,
+            "email" => $data->email,
+            "isSubscribed" => boolval($data->isSubscribed ?? false),
+        ];
+        return response($response, Response::HTTP_OK);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function subs_update(Request $request, string $subscriberId)
+    {
+        //
+        $data = PublicationSubscriber::where('subscriberId', '=', $subscriberId)->first();
+        if ($data == null) {
+            return response([
+                "Subscriber not found"
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $data->email = $request->input('email') ?? $data->email;
+        $data->isSubscribed = boolval($request->input('isSubscribed') ?? $data->isSubscribed ?? false);
+
+        $data->save();
+
+        $response = [
+            'subscriberId' => $data->subscriberId
+        ];
+
+        return response($response, Response::HTTP_CREATED);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function subs_destroy(string $subscriberId)
+    {
+        //
+        $data = PublicationSubscriber::where('subscriberId', '=', $subscriberId)->first();
+        $data->delete();
+
+        return response([], Response::HTTP_CREATED);
+    }
+
+
+    /**
+     * Store a newly created resource in storage.
+     */
+    public function subs_publish_store(Request $request, string $newsletterId)
+    {
+
+        //Newsletter
+        $newLetter = Publication::where('publish_id', '=', $newsletterId)->first();
+
+        if ($newLetter == null) {
+            return response([
+                "Newsletter not found"
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        //Newsletter type
+        if ($newLetter->publish_type != 1) {
+            //If publication not Newsletter
+            return response(["Publication not newsletter."], Response::HTTP_BAD_REQUEST);
+        }
+
+        //Get Subscribers
+
+        $subs = PublicationSubscriber::where('isSubscribed', '=', true)->latest()->get();
+
+        if ($subs == null) {
+            return response(["No Subscribers found"], Response::HTTP_NOT_FOUND);
+        }
+
+        //Bulk Email Send here.
+
+        return response([
+            // "subscriberId" => $asset->subscriberId
+        ], Response::HTTP_CREATED);
     }
 }

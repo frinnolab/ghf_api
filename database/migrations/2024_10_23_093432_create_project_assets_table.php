@@ -16,12 +16,20 @@ return new class extends Migration
         //     $table->timestamps();
         // });
 
-        Schema::create('project_assets', function (Blueprint $table) {
-            $table->uuid('project_asset_id')->primary();
-            $table->string('project_id');
-            $table->string('asset_url')->nullable();
-            $table->timestamps();
-            $table->softDeletes();
+        // Schema::create('project_assets', function (Blueprint $table) {
+        //     $table->uuid('project_asset_id')->primary();
+        //     $table->string('project_id');
+        //     $table->string('asset_url')->nullable();
+        //     $table->timestamps();
+        //     $table->softDeletes();
+        // });
+
+        Schema::table('project_assets', function (Blueprint $table) {
+            // $table->uuid('project_asset_id')->primary();
+            // $table->string('project_id');
+            $table->string('video_url')->nullable();
+            // $table->timestamps();
+            // $table->softDeletes();
         });
     }
 

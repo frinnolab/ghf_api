@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Impacts\Impact;
 use App\Models\Impacts\ImpactAsset;
+use App\Models\Impacts\ImpactReport;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
@@ -49,6 +50,7 @@ class ImpactsController extends Controller
                 "description" => $data->description,
                 "schoolName" => $data->school_name,
                 "schoolRegion" => $data->school_region,
+                "schoolsTotal" => $data->school_reached_total,
                 "schoolDistrict" => $data->school_district,
                 "studentGirls" => $data->student_girls,
                 "studentBoys" => $data->student_boys,
@@ -76,6 +78,7 @@ class ImpactsController extends Controller
             "school_name" => $request->input('schoolName'),
             "school_region" => $request->input('schoolRegion'),
             "school_district" => $request->input('schoolDistrict'),
+            "school_reached_total" => intval($request->input('schoolsTotal')) ?? 0,
             "student_boys" => intval($request->input('studentBoys') ?? 0),
             "student_girls" => intval($request->input('studentGirls') ?? 0),
         ]);
@@ -129,6 +132,8 @@ class ImpactsController extends Controller
             "studentGirls" => $data->student_girls,
             "studentBoys" => $data->student_boys,
             "studentsTotal" => $data->student_total,
+            "schoolsTotal" => $data->school_reached_total,
+            //"school_reached_total" => intval($request->input('schoolsTotal')) ?? 0,
         ];
 
         return response($response);
@@ -152,6 +157,7 @@ class ImpactsController extends Controller
         $data->school_region = $request->input('schoolRegion') ?? $data->school_region;
         $data->school_district = $request->input('schoolDistrict') ?? $data->school_district;
         $data->student_boys = intval($request->input('studentBoys') ?? $data->student_boys);
+        $data->school_reached_total = intval($request->input('schoolsTotal') ?? $data->school_reached_total);
         $data->student_girls = intval($request->input('studentGirls') ?? $data->student_girls);
         $data->student_total = intval($data->student_boys + $data->student_girls);
 
@@ -224,7 +230,7 @@ class ImpactsController extends Controller
         return response($response, Response::HTTP_OK);
     }
 
-    public function assets_show(string $assetId)
+    public function assets_show(string $impactId, string $assetId)
     {
 
         $data = ImpactAsset::where('impact_asset_id', '=', $assetId)->first();
@@ -266,6 +272,22 @@ class ImpactsController extends Controller
             $path = Storage::putFile('public/impact_assets', $file);
         }
 
+        $videopath = null;
+        $videofile = null;
+
+        if ($request->hasFile('video')) {
+
+            $file = $request->file('video');
+
+            if (!$file->isValid()) {
+                return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $videopath = Storage::putFile('public/impact_assets/general_video', $videofile);
+
+            $path = $videopath;
+        }
+
         $impactAsset =  new ImpactAsset([
             "impact_id" => $impact->impact_id,
             "asset_url" => $path
@@ -281,6 +303,107 @@ class ImpactsController extends Controller
     public function assets_destroy(string $assetId)
     {
         $asset = ImpactAsset::where('impact_asset_id', '=', $assetId)->first();
+
+        if ($asset == null) {
+            return response([], Response::HTTP_NOT_FOUND);
+        }
+
+        $asset->delete();
+
+        return response([], Response::HTTP_CREATED);
+    }
+
+    //Impact Reports
+    public function report_index(string $impactId)
+    {
+
+        $response = [];
+        //$request->validate(['impactId'=>'required']);
+
+        if ($impactId == '' or $impactId == null) {
+            return response(['ImpactId is required'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $datas = ImpactReport::where('impact_id', '=', $impactId)->latest()->get();
+
+        if ($datas == null) {
+            return response([], Response::HTTP_NO_CONTENT);
+        }
+
+        foreach ($datas as $report) {
+            $imgUrl = null;
+            if ($report->report_url != '' or $report->report_url != null) {
+                $imgUrl = asset(Storage::url($report->report_url));
+            }
+            $data = [
+                'assetId' => $report->impact_report_id,
+                'impactId' => $report->impact_id,
+                'title' => $report->title,
+                'reportUrl' => $imgUrl,
+            ];
+
+            array_push($response, $data);
+        }
+
+        return response($response, Response::HTTP_OK);
+    }
+
+    //Download
+    public function report_show(string $impactId, string $reportId)
+    {
+
+        $data = ImpactReport::where('impact_report_id', '=', $reportId)->first();
+
+        if ($data == null) {
+            return response([
+                "Report not found"
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        return response()->download( storage_path('app/'. $data->report_url) );
+
+    }
+
+    public function report_store(Request $request, string $impactId)
+    {
+        $impact = Impact::where('impact_id', '=', $impactId)->first();
+
+        if ($impact == null) {
+            return response([
+                "Impact not found."
+            ], Response::HTTP_NOT_FOUND);
+        }
+
+        $path = null;
+        $file = null;
+
+        if ($request->hasFile('doc')) {
+
+            $file = $request->file('doc');
+
+            if (!$file->isValid()) {
+                return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $path = Storage::putFile('public/impact_reports', $file);
+        }
+
+        $impactReport =  new ImpactReport([
+            "impact_id" => $impact->impact_id,
+            "title" => $request->input('title'),
+            "report_url" => $path
+        ]);
+
+        $impactReport->save();
+
+        return response([
+            "assetId" => $impactReport->impact_report_id
+        ], Response::HTTP_CREATED);
+    }
+
+    public function report_destroy(string $reportId)
+    {
+        $asset = ImpactReport::where('impact_report_id', '=', $reportId)->first();
 
         if ($asset == null) {
             return response([], Response::HTTP_NOT_FOUND);

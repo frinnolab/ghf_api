@@ -1,23 +1,22 @@
 <?php
 
-namespace App\Models\Publications;
+namespace App\Models\settings;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PublicationAsset extends Model
+class StatisticsInfo extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;
-    
-    protected $primaryKey = 'publish_asset_id';
+
+    protected $primaryKey = 'stat_id';
 
     protected $fillable = [
-        'title',
-        'publish_id',
-        'asset_url',
-        'type',
+        'regions_reached',
+        'districts_reached',
+        'students_impacted',
+        'schools_reached',
     ];
-
 }

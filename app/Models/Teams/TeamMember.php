@@ -17,5 +17,6 @@ class TeamMember extends Model
         "team_id",
         "member_id",
         "team_position",
+        "is_team_member",
     ];
 }

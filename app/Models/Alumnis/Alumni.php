@@ -20,5 +20,6 @@ class Alumni extends Model
         "participation_year",
         "currenct_occupation",
         "story",
+        "is_published",
     ];
 }

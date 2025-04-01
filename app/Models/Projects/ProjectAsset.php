@@ -15,6 +15,7 @@ class ProjectAsset extends Model
 
     protected $fillable = [
         'project_id',
-        'asset_url'
+        'asset_url',
+        'video_url'
     ];
 }

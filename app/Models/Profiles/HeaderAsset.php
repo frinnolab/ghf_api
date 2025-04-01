@@ -1,23 +1,21 @@
 <?php
 
-namespace App\Models\Publications;
+namespace App\Models\Profiles;
 
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Prunable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class PublicationAsset extends Model
+class HeaderAsset extends Model
 {
-    use HasFactory, HasUuids, SoftDeletes;
-    
-    protected $primaryKey = 'publish_asset_id';
+    use HasFactory, HasUuids, SoftDeletes, Prunable;
+
+    protected $primaryKey =  'header_asset_id';
 
     protected $fillable = [
-        'title',
-        'publish_id',
         'asset_url',
-        'type',
+        'asset_section_type'
     ];
-
 }

@@ -19,6 +19,7 @@ class Blog extends Model
         'thumbnail_url',
         'description',
         'author_id',
+        'is_archived',
     ];
 
 }
