@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Profiles\Profile;
 use App\Models\Teams\Team;
-use App\Models\Teams\TeamManager;
 use App\Models\Teams\TeamMember;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -20,7 +19,7 @@ class TeamController extends Controller
         //
         $teams = Team::latest()->get();
 
-        if (!$teams) {
+        if ($teams == null) {
             return response([], Response::HTTP_NO_CONTENT);
         }
 
@@ -28,19 +27,18 @@ class TeamController extends Controller
 
         foreach ($teams as $team) {
 
-            $tm = TeamMember::where('team_id', '=', $team->team_id, 'AND', 'member_id', '!=', null)->get();
+            $tm = TeamMember::where('team_id', '=', $team->team_id, 'AND', 'member_id', '!=', null)->latest()->get();
 
             $data = [
                 "teamId" => $team->team_id,
                 "name" => $team->name,
                 "isMainBoard" => $team->is_main_board,
+                "isTeamMember" => $team->is_team_member,
                 "totalMembers" => count($tm) ?? 0,
             ];
 
-
             array_push($response, $data);
         }
-
 
         return response($response, Response::HTTP_OK);
     }
@@ -54,23 +52,18 @@ class TeamController extends Controller
         $admin = Profile::where('profile_id', '=', $request->input('profileId'))->first();
 
         if ($admin == null) {
-            return response('Profile not found', Response::HTTP_NOT_FOUND);
+            return response('Admin profile not found!.', Response::HTTP_NOT_FOUND);
         }
 
         $authRole = intval($admin->roleType);
 
         switch ($authRole) {
             case -1:
-                # code...
                 break;
             case 1:
-                # code...
                 break;
-
             default:
-                # code...
-                return response("", Response::HTTP_UNAUTHORIZED);
-                //break;
+                return response("You're not Authorised to perform!.", Response::HTTP_UNAUTHORIZED);
         }
 
         //New Team
@@ -132,6 +125,7 @@ class TeamController extends Controller
         $response = [
             'teamId' => $team->team_id,
             'name' => $team->name,
+            // 'isTeamMember' => $team->is_team_member,
             "isMainBoard" => boolval($team->is_main_board),
             'totalMembers' => count($tm) ?? 0,
         ];
@@ -142,39 +136,19 @@ class TeamController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request)
+    public function update(Request $request, string $teamId)
     {
-        //
-        // $admin = Profile::where('profile_id', '=', $request->input('profileId'))->first();
-
-        // if ($admin) {
-        //     return response(["Admin profile not found"], Response::HTTP_NOT_FOUND);
-        // }
-
-        // $authRole = intval($admin->roleType);
-
-        // switch ($authRole) {
-        //     case -1:
-        //         # code...
-        //         break;
-        //     case 1:
-        //         # code...
-        //         break;
-
-        //     default:
-        //         # code...
-        //         return response("", Response::HTTP_UNAUTHORIZED);
-        //         //break;
-        // }
 
         $team = Team::where('team_id', '=', $request->input('teamId'))->first();
 
-        if (!$team) {
+        if ($team == null) {
             return response(["Team not found"], Response::HTTP_NOT_FOUND);
         }
 
         $team->name = $request->input('name') ?? $team->name;
         $team->is_main_board = $request->input('isMainBoard');
+        // $team->is_team_member = $request->input('isTeamMember');
+
         $team->save();
         //$team->team_members = count(Team::all());
 
@@ -196,6 +170,65 @@ class TeamController extends Controller
 
     //Team Members Endpoints
 
+    public function getMainTeamMembers()
+    {
+        //Public facing endponit
+
+        // $team = Team::where('is_main_board', '=', true)->first();
+
+        // if (!$team) {
+        //     return response([], Response::HTTP_NO_CONTENT);
+        // }
+
+
+        $tMemmbers = TeamMember::where('is_team_member', '=', true)->latest()->get()->unique('member_id');
+
+        if ($tMemmbers == null) {
+            return response([], Response::HTTP_NO_CONTENT);
+        }
+
+        $response = [];
+
+        foreach ($tMemmbers as $tm) {
+            $pf = Profile::where('profile_id', '=', $tm->member_id)->first();
+
+            if ($pf === null) {
+                continue;
+            }
+
+            $imgUrl = null;
+
+            if ($pf->avatar_url !== null) {
+                $imgUrl = asset(Storage::url($pf->avatar_url));
+            }
+
+
+            $member = [
+                'profileId' => $pf->profile_id,
+                'avatarUrl' => $pf->$imgUrl ?? null,
+                'email' => $pf->email,
+                'firstname' => $pf->firstname,
+                'lastname' => $pf->lastname,
+                'position' => $pf->position,
+                'mobile' => $pf->mobile,
+                'roleType' => $pf->roleType,
+            ];
+
+            $data = [
+                'teamId' => $tm->team_id,
+                'memberId' => $pf->profile_id,
+                'memberAvatarUrl' => $imgUrl,
+                'isTeamMember' => $tm->is_team_member,
+                'member' => $member,
+                'teamPosition' => $tm->team_position,
+            ];
+
+            array_push($response, $data);
+        }
+
+        return response($response, Response::HTTP_OK);
+    }
+
     public function getMainBoardTeamMembers()
     {
         //Public facing endponit
@@ -207,18 +240,24 @@ class TeamController extends Controller
         }
 
 
-        $tMemmbers = TeamMember::where('team_id', '=', $team->team_id)->get();
+        $tMemmbers = TeamMember::where('team_id', '=', $team->team_id)->latest()->get();
 
         if (!$tMemmbers) {
             return response([], Response::HTTP_NO_CONTENT);
         }
 
         $response = [];
+        $imgUrl = null;
+
 
         foreach ($tMemmbers as $tm) {
             $pf = Profile::where('profile_id', '=', $tm->member_id)->first();
 
-            $imgUrl = asset(Storage::url($pf->avatar_url));
+            if ($pf->avatar_url) {
+
+                $imgUrl = asset(Storage::url($pf->avatar_url));
+            }
+
 
             $member = [
                 'profileId' => $pf->profile_id,
@@ -228,6 +267,7 @@ class TeamController extends Controller
                 'lastname' => $pf->lastname,
                 'position' => $pf->position,
                 'mobile' => $pf->mobile,
+                'biography' => $pf->biography,
                 'roleType' => $pf->roleType,
             ];
 
@@ -251,13 +291,15 @@ class TeamController extends Controller
 
         $team = Team::where('team_id', '=', $teamId)->first();
 
-        if (!$team) {
-            return response([], Response::HTTP_NOT_FOUND);
+        if ($team == null) {
+            return response([
+                "Team not found!."
+            ], Response::HTTP_NOT_FOUND);
         }
 
         $tMemmbers = TeamMember::where('team_id', '=', $team->team_id)->get();
 
-        if (!$tMemmbers) {
+        if ($tMemmbers == null) {
             return response([], Response::HTTP_NO_CONTENT);
         }
 
@@ -280,8 +322,10 @@ class TeamController extends Controller
             ];
 
             $data = [
+                'teamMemberId' => $tm->team_m_id,
                 'teamId' => $team->team_id,
                 'memberId' => $pf->profile_id,
+                'isTeamMember' => $tm->is_team_member,
                 'member' => $member,
                 'teamPosition' => $tm->team_position,
             ];
@@ -320,6 +364,7 @@ class TeamController extends Controller
             "email" => $tMemmbers->email,
             "teamId" => $tMemmbers->team_id,
             "memberId" => $tMemmbers->member_id,
+            'isTeamMember' => $tMemmbers->is_team_member,
             "teamPosition" => $team->team_position,
         ];
 
@@ -354,6 +399,7 @@ class TeamController extends Controller
             "team_id" => $team->team_id,
             "member_id" => $prf->profile_id,
             "team_position" => $request->input('teamPosition'),
+            "is_team_member" => boolval($request->input('isTeamMember')),
         ]);
 
         $tm->save();
@@ -370,12 +416,12 @@ class TeamController extends Controller
     {
         $team = Team::where('team_id', '=', $request->input('teamId'))->first();
 
-        if (!$team) {
+        if ($team == null) {
             return response('Team not found', Response::HTTP_NOT_FOUND);
         }
         $prf = Profile::where('profile_id', '=', $request->input('memberId'))->first();
 
-        if (!$prf) {
+        if ($prf == null) {
             return response('Profile not found', Response::HTTP_NOT_FOUND);
         }
 
@@ -389,16 +435,13 @@ class TeamController extends Controller
             $prf->profile_id
         )->first();
 
-        if (!$tm) {
-            return response([], Response::HTTP_NOT_FOUND);
+        if ($tm == null) {
+            return response('Team member not found', Response::HTTP_NOT_FOUND);
         }
 
-        $tm = new TeamMember([
-            "team_id" => $team->team_id,
-            "member_id" => $prf->profile_id,
-            "team_position" => $request->input('teamPosition'),
-        ]);
-
+        $tm->team_id = $team->team_id;
+        $tm->member_id = $prf->profile_id;
+        $tm->is_team_member = boolval($request->input('isTeamMember')) ?? false;
         $tm->team_position = $request->input('teamPosition') ?? $tm->team_position;
 
         $tm->save();

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Profiles\Profile;
 use App\Models\Projects\Project;
 use App\Models\Settings\CompanyInfo;
+use App\Models\Settings\StatisticsInfo;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
@@ -78,6 +79,45 @@ class SettingsController extends Controller
         return response([], Response::HTTP_CREATED);
     }
 
+    public function assetsInfoCreate(Request $request)
+    {
+
+
+        $data = CompanyInfo::first();
+
+        $path = null;
+        $file = null;
+
+        if ($request->hasFile('imageAsset')) {
+
+            $file = $request->file('imageAsset');
+            if (!$file->isValid()) {
+                return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $path = Storage::putFile('public/company_info/logo_assets', $file);
+
+            $data->logo_Url = $path;
+        }
+
+        $videopath = null;
+        $videofile = null;
+
+        if ($request->hasFile('videoAsset')) {
+
+            $videofile = $request->file('videoAsset');
+            if (!$videofile->isValid()) {
+                return response()->json(['invalid_file_upload'], Response::HTTP_BAD_REQUEST);
+            }
+
+            $videopath = Storage::putFile('public/company_info/video_assets', $videofile);
+            $data->intro_VideoUrl = $videopath;
+        }
+
+        $data->save();
+
+        return response([], Response::HTTP_CREATED);
+    }
     public function assetsInfoUpdate(Request $request, string $infoId)
     {
 
@@ -147,4 +187,108 @@ class SettingsController extends Controller
         return response($data, Response::HTTP_OK);
     }
     //Summary Info Endpoints End
+
+    //Stats Info
+    public function statsInfoIndex()
+    {
+        $data = StatisticsInfo::first();
+
+        if ($data == null) {
+            return response([], Response::HTTP_NO_CONTENT);
+        }
+
+        $response = [
+            'statId' => $data->stat_id,
+            'regionsReached' => $data->regions_reached ?? 0,
+            'districtsReached' => $data->districts_reached ?? 0,
+            'studentsImpacted' =>  $data->students_impacted ?? 0,
+            'schoolsReached' => $data->schools_reached ?? 0,
+        ];
+        return response($response, Response::HTTP_OK);
+    }
+
+    public function statsInfoStore(Request $request)
+    {
+
+        $newStat = new StatisticsInfo([
+            "regions_reached" => intval($request->input('regionsReached')),
+            "districts_reached" => intval($request->input('districtsReached')),
+            "students_impacted" => intval($request->input('studentsImpacted')),
+            "schools_reached" => intval($request->input('schoolsReached')),
+        ]);
+
+        $newStat->save();
+
+        $response =
+            [
+                "statId" => $newStat->stat_id,
+            ];
+
+
+        return response($response, Response::HTTP_CREATED);
+    }
+
+    public function statsInfoUpdate(Request $request, string $statsId)
+    {
+
+        $response = [];
+
+        $statData = StatisticsInfo::where('stat_id', '=', $statsId)->first();
+
+        if ($statData == null) {
+            return response('Statistics not found', Response::HTTP_NOT_FOUND);
+        }
+
+
+
+        $statData->regions_reached = intval($request->input('regionsReached') ?? $statData->regions_reached);
+        $statData->districts_reached = intval($request->input('districtsReached') ?? $statData->districts_reached);
+        $statData->students_impacted = intval($request->input('studentsImpacted') ?? $statData->students_impacted);
+        $statData->schools_reached = intval($request->input('schoolsReached') ?? $statData->schools_reached);
+
+        $statData->save();
+
+
+
+
+        $response = [
+            "statId" => $statData->stat_id,
+        ];
+
+        return response($response, Response::HTTP_CREATED);
+    }
+
+    public function statsInfoShow(Request $request, string $statsId)
+    {
+        $data = StatisticsInfo::where('stat_id', '=', $statsId)->first();
+
+        if ($data == null) {
+            return response(['Statistics data not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        //format response
+        $response = [
+            'statId' => $data->stat_id,
+            'regionsReached' => $data->regions_reached ?? 0,
+            'districtsReached' => $data->districts_reached ?? 0,
+            'studentsImpacted' =>  $data->students_impacted ?? 0,
+            'schoolsReached' => $data->schools_reached ?? 0,
+        ];
+        return response($response, Response::HTTP_OK);
+    }
+
+    public function statsInfoDestroy(Request $request, string $statsId) {
+        $data = StatisticsInfo::where('stat_id', '=', $statsId)->first();
+
+        if ($data == null) {
+            return response(['Alumni not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        $data->delete();
+
+        return response([
+            "Statistic removed"
+        ], Response::HTTP_CREATED);
+    }
+    //Stats Info End
 }

@@ -15,12 +15,19 @@ class AlumnisController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         //
+        $alumnis = [];
         $response = [];
-        $alumnis = Alumni::latest()->get();
-        $dataNew = [];
+        $isPublished = boolval($request->query('isPublished') ?? false);
+
+        if($isPublished){
+            $alumnis = Alumni::where('is_published', '=', $isPublished)->latest()->get();
+        }else{
+            $alumnis = Alumni::latest()->get();
+        }
+
 
 
 
@@ -28,9 +35,9 @@ class AlumnisController extends Controller
             return response($response, Response::HTTP_NO_CONTENT);
         }
 
+        $imgUrl = null;
+        $profile = null;
         foreach ($alumnis as $alumni) {
-            $imgUrl = null;
-            $profile = null;
 
             if ($alumni->profile_id != null) {
 
@@ -44,7 +51,7 @@ class AlumnisController extends Controller
 
             $profileData = [
                 'profileId' => $profile->profile_id,
-                'avatarUrl' => $imgUrl ?? null,
+                'avatarUrl' => $imgUrl,
                 'email' => $profile->email ?? null,
                 'firstname' => $profile->firstname ?? null,
                 'lastname' => $profile->lastname ?? null,
@@ -63,6 +70,7 @@ class AlumnisController extends Controller
                 "participationYear" => $alumni->participation_year,
                 "currenctOccupation" => $alumni->currenct_occupation,
                 "story" => $alumni->story,
+                "isPublished" => $alumni->is_published,
             ];
 
             array_push($response, $data);
@@ -90,7 +98,7 @@ class AlumnisController extends Controller
             return response('Role not Authorized', Response::HTTP_UNAUTHORIZED);
         }
 
-        $path = '';
+        $path = null;
         $file = null;
 
         if ($request->hasFile('avatar')) {
@@ -108,7 +116,7 @@ class AlumnisController extends Controller
             'avatar_url' => $path ?? null,
             'firstname' => $request->input('firstname'),
             'lastname' => $request->input('lastname'),
-            'position' => $request->input('position') ?? null,
+            'position' => $request->input('position'),
             'mobile' => $request->input('mobile'),
             'email' => $request->input('email'),
             'hashed_password' => password_hash($request->input('email'), HASH_HMAC),
@@ -129,7 +137,8 @@ class AlumnisController extends Controller
             "participation_school" => $request->input('participationSchool'),
             "participation_year" => intval($request->input('participationYear')),
             "currenct_occupation" => $request->input('currenctOccupation'),
-            "story" => $request->input('story')
+            "story" => $request->input('story'),
+            "is_published" => boolval($request->input('isPublished') ?? false) 
         ]);
 
         $newAlumni->save();
@@ -137,7 +146,7 @@ class AlumnisController extends Controller
         $response =
             [
                 "alumniId" => $newAlumni->alumni_id,
-                "profileId" => $newProfile->profile_id
+                "profileId" => $newAlumni->profile_id
             ];
 
 
@@ -151,48 +160,38 @@ class AlumnisController extends Controller
     {
         //
         $response = [];
-        $profile = null;
         $imgUrl = null;
         $alumni = Alumni::where('alumni_id', '=', $id)->first();
-        $alumniProfile = Profile::where('profile_id', '=', $profileId)->first();
+        // $profile = null;
 
         if ($alumni == null) {
             return response(['Alumni not found'], Response::HTTP_NOT_FOUND);
         }
 
+        // $alumniProfile = Profile::where('profile_id', '=', $profileId)->first();
+
+        $alumniProfile = DB::table('profiles')->where('profile_id', '=', $profileId)->first();
+
         if ($alumniProfile == null) {
 
-            return response([
-                "alumniId" => $id,
-                "alumniProfileId" => $profileId,
-            ], Response::HTTP_OK);
-            //return response(['Alumni Profile not found'], Response::HTTP_NOT_FOUND);
+            return response(['Alumni Profile not found'], Response::HTTP_NOT_FOUND);
         }
 
-        if ($alumni->profile_id) {
 
-            $profile = Profile::where('profile_id', '=', $alumni->profile_id)->first();
+        if ($alumniProfile->avatar_url) {
 
-            //            return response([$profile]);
-            if ($profile == null) {
-                return response(['Alumni Profile not found'], Response::HTTP_NOT_FOUND);
-            }
-        }
-
-        if (strlen($profile->avatar_url) > 0) {
-
-            $imgUrl = asset(Storage::url($profile->avatar_url));
+            $imgUrl = asset(Storage::url($alumniProfile->avatar_url));
         }
 
         $profileData = [
-            'profileId' => $profile->profile_id,
+            'profileId' => $alumniProfile->profile_id,
             'avatarUrl' => $imgUrl,
-            'email' => $profile->email,
-            'mobile' => $profile->mobile,
-            'firstname' => $profile->firstname,
-            'lastname' => $profile->lastname,
-            'position' => $profile->position,
-            'roleType' => $profile->roleType,
+            'email' => $alumniProfile->email,
+            'mobile' => $alumniProfile->mobile,
+            'firstname' => $alumniProfile->firstname,
+            'lastname' => $alumniProfile->lastname,
+            'position' => $alumniProfile->position,
+            'roleType' => $alumniProfile->roleType,
         ];
 
         //format response
@@ -204,6 +203,7 @@ class AlumnisController extends Controller
             "participationYear" => $alumni->participation_year,
             "currenctOccupation" => $alumni->currenct_occupation,
             "story" => $alumni->story,
+            "isPublished" => $alumni->is_published,
         ];
 
 
@@ -217,15 +217,52 @@ class AlumnisController extends Controller
     {
         //
         $response = [];
+
         $alumni = Alumni::where('alumni_id', '=', $id)->first();
+
+        if ($alumni == null) {
+            return response('Alumni not found', Response::HTTP_NOT_FOUND);
+        }
+
+
 
         $alumni->age = intval($request->input('age') ?? $alumni->age);
         $alumni->participation_school = $request->input('participationSchool') ?? $alumni->participation_school;
-        $alumni->participation_year = intval($request->input('participationYear'))  ?? $alumni->participation_year;
+        $alumni->participation_year = intval($request->input('participationYear') ?? $alumni->participation_year);
         $alumni->currenct_occupation = $request->input('currenctOccupation') ?? $alumni->currenct_occupation;
         $alumni->story = $request->input('story') ?? $alumni->story;
+        // $alumni->is_published = intval($request->input('isPublished') ?? $alumni->is_published ?? 0) ;
 
         $alumni->save();
+
+
+
+
+        $response = [
+            "alumniId" => $alumni->alumni_id,
+            "profileId" => $alumni->profile_id
+        ];
+
+        return response($response, Response::HTTP_CREATED);
+    }
+
+    public function updatePublish(Request $request, string $id)
+    {
+        //
+        $response = [];
+
+        $alumni = Alumni::where('alumni_id', '=', $id)->first();
+
+        if ($alumni == null) {
+            return response('Alumni not found', Response::HTTP_NOT_FOUND);
+        }
+
+        $alumni->is_published = boolval($request->input('isPublished') ?? $alumni->is_published ?? false) ;
+
+        $alumni->save();
+
+
+
 
         $response = [
             "alumniId" => $alumni->alumni_id,
@@ -250,11 +287,11 @@ class AlumnisController extends Controller
         $profile = Profile::where('profile_id', '=', $alumni->profile_id)->first();
 
 
-        if ($profile == null) {
-            return response(['Alumni Profile not found'], Response::HTTP_NOT_FOUND);
+        if ($profile != null) {
+            //return response(['Alumni Profile not found'], Response::HTTP_NOT_FOUND);
+            $profile->delete();
         }
 
-        $profile->delete();
 
         $alumni->delete();
 

@@ -49,10 +49,22 @@ class DefaultProfileRoleSeed extends Seeder
             "name"=>"Volunteer",
             "type"=>4,
         ];
+        $internSeed = [
+            "profile_role_id"=>uuid_create(),
+            "name"=>"Intern",
+            "type"=>5,
+        ];
+        $boardSeed = [
+            "profile_role_id"=>uuid_create(),
+            "name"=>"BoardMember",
+            "type"=>6,
+        ];
 
         $seeds = [
-            $employeeSeed,
-            $volunteerSeed
+            // $employeeSeed,
+            // $volunteerSeed
+            $internSeed,
+            $boardSeed
         ];
 
         DB::table('profile_roles')->insert($seeds);

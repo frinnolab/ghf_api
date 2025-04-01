@@ -22,9 +22,29 @@ class BlogController extends Controller
             return response([], Response::HTTP_NO_CONTENT);
         }
 
+
+        // $isArchived = false;
+        if ($request->query('isArchived')) {
+            $isArchived =  $request->query('isArchived');
+
+            if ($isArchived == "true") {
+
+                $blogs = $blogs->where('is_archived', '=', true);
+            }
+
+            if ($isArchived == "false") {
+
+                $blogs = $blogs->where('is_archived', '=', false);
+            }
+            
+
+
+
+            //dump($isArchived);
+        }
         $limit = $request->query('limit');
 
-        if(intval($limit)>0){
+        if (intval($limit) > 0) {
             $blogs = $blogs->take($limit);
         }
 
@@ -42,7 +62,8 @@ class BlogController extends Controller
                 'title' => $blog->title,
                 'thumbnailUrl' => $imgUrl,
                 'description' => $blog->description,
-                'authorId' => $blog->author_id
+                'authorId' => $blog->author_id,
+                'isArchived' => boolval($blog->is_archived ?? false)
             ];
 
             array_push($response, $data);
@@ -96,11 +117,14 @@ class BlogController extends Controller
             $path = Storage::putFile('public/blog_assets', $file);
         }
 
+        $isArchived = boolval($request->input('isArchived') ?? false);
+
         $blog = new Blog([
             'thumbnail_url' => $path,
             'title' => $request->input('title'),
             'description' => $request->input('description'),
-            'author_id' => $request->input('authorId')
+            'author_id' => $request->input('authorId'),
+            'is_archived' => $isArchived
         ]);
 
         $blog->save();
@@ -136,7 +160,8 @@ class BlogController extends Controller
             "title" => $blog->title,
             "description" => $blog->description,
             "thumbnailUrl" => $imgUrl,
-            "authorId" => $blog->author_id
+            "authorId" => $blog->author_id,
+            "isArchived" => boolval($blog->is_archived ?? false)
         ];
         return response($response, Response::HTTP_OK);
     }
@@ -189,11 +214,13 @@ class BlogController extends Controller
             $path = Storage::putFile('public/blog_assets', $file);
         }
 
+        $isArchived = boolval($request->input('isArchived') ?? $blog->is_archived ?? false);
 
         $blog->title = $request->input('title') ?? $blog->title;
         $blog->description = $request->input('description') ?? $blog->description;
         $blog->author_id = $authorProfile->profile_id ?? $blog->author_id;
         $blog->thumbnail_url = $path ?? $blog->thumbnail_url;
+        $blog->is_archived = $isArchived;
         $blog->save();
 
         $response = [

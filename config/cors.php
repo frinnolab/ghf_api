@@ -19,7 +19,8 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['http://localhost:5173'],
+    // 'allowed_origins' => ['https://dev.ghftz.or.tz','https://ghftz.or.tz'],
 
     'allowed_origins_patterns' => [],
 

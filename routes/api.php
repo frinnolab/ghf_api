@@ -131,6 +131,7 @@ Route::prefix('v1')->group(function () {
 
     //Publications
     Route::prefix('publications')->group(function () {
+
         Route::controller(PublicationsController::class)->group(function () {
             Route::get('/', 'index');
             Route::get('/{publishId}', 'show');
@@ -146,6 +147,25 @@ Route::prefix('v1')->group(function () {
             Route::post('/assets', 'assets_store')->middleware('auth:sanctum');
             //Route::put('/assets/{assetId}', 'assets_update')->middleware('auth:sanctum');
             Route::delete('/assets/{assetId}', 'assets_destroy')->middleware('auth:sanctum');
+        });
+
+
+        //Publication Subscriptions
+        Route::controller(PublicationsController::class)->group(function () {
+            Route::get('/subscriptions/index', 'subs_index');
+            Route::get('/subscriptions/{subscriberId}', 'subs_show');
+            Route::post('/subscriptions', 'subs_store');//->middleware('auth:sanctum');
+            Route::put('/subscriptions/{subscriberId}', 'subs_update')->middleware('auth:sanctum');
+            Route::delete('/subscriptions/{subscriberId}', 'subs_destroy')->middleware('auth:sanctum');
+        });
+
+        //Publication Publish Newsletter to Subscribers
+        Route::controller(PublicationsController::class)->group(function () {
+            // Route::get('/subscriptions/index', 'subs_index');
+            // Route::get('/subscriptions/{subscriberId}', 'subs_show');
+            Route::post('/subscriptions/{newsletterId}/publish', 'subs_publish_store')->middleware('auth:sanctum');
+            // Route::put('/subscriptions/{subscriberId}', 'subs_update')->middleware('auth:sanctum');
+            // Route::delete('/subscriptions/{subscriberId}', 'subs_destroy')->middleware('auth:sanctum');
         });
     });
 
@@ -164,8 +184,9 @@ Route::prefix('v1')->group(function () {
         Route::controller(AlumnisController::class)->group(function () {
             Route::get('/', 'index');
             Route::get('/{id}/{profileId}', 'show');
-            Route::post('/', 'store');//->middleware('auth:sanctum');
+            Route::post('/', 'store'); //->middleware('auth:sanctum');
             Route::put('/{id}', 'update')->middleware('auth:sanctum');
+            Route::put('/{id}/publish', 'updatePublish')->middleware('auth:sanctum');
             Route::delete('/{id}', 'destroy')->middleware('auth:sanctum');
         });
     });
@@ -182,6 +203,7 @@ Route::prefix('v1')->group(function () {
 
             //Team Members
             Route::get('/members/main', 'getMainBoardTeamMembers');
+            Route::get('/members/team', 'getMainTeamMembers');
             Route::get('/members/{teamId}', 'getTeamMembers');
             Route::get('/members/{teamId}/{memberId}', 'getTeamMember');
             Route::post('/members', 'addMemberToTeam')->middleware('auth:sanctum');
@@ -189,7 +211,7 @@ Route::prefix('v1')->group(function () {
             Route::delete('/members/{teamId}/{memberId}', 'removeMemberToTeam')->middleware('auth:sanctum');
         });
     });
- 
+
 
     //Settings
     Route::prefix('settings')->group(function () {
@@ -207,10 +229,16 @@ Route::prefix('v1')->group(function () {
         Route::controller(SettingsController::class)->group(function () {
             Route::get('/companyassets', 'assetsIndex');
             Route::get('/companyassets/{assetId}', 'assetsInfo');
-            Route::post('/companyassets', 'assetsInfoCreate'); //->middleware('auth:sanctum');
-            Route::put('/companyassets/{infoId}', 'assetsInfoUpdate')->middleware('auth:sanctum');
+            Route::put('/companyassets', 'assetsInfoCreate')->middleware('auth:sanctum');
+            //Route::put('/companyassets/{infoId}', 'assetsInfoUpdate')->middleware('auth:sanctum');
+
+
+            Route::get('/statsinfo', 'statsInfoIndex');
+            Route::get('/statsinfo/{statsId}', 'assetsInfo');
+            Route::post('/statsinfo', 'statsInfoStore')->middleware('auth:sanctum');
+            Route::put('/statsinfo/{statsId}', 'statsInfoUpdate')->middleware('auth:sanctum');
+            Route::delete('/statsinfo/{statsId}', 'destroy')->middleware('auth:sanctum');
             // Route::put('/{adminId}/companyassets', 'companyInfoAssetsCreate')->middleware('auth:sanctum');
-            // Route::delete('/{blogId}', 'destroy')->middleware('auth:sanctum');
         });
     });
 
@@ -224,11 +252,19 @@ Route::prefix('v1')->group(function () {
             Route::delete('/{impactId}', 'destroy'); //->middleware('auth:sanctum');
 
 
+            //Assets
             Route::get('/assets/{impactId}', 'assets_index');
-            Route::get('/assets/{assetId}', 'assets_show');
-            Route::post('/assets/{impactId}', 'assets_store'); //->middleware('auth:sanctum');
+            Route::get('/assets/{impactId}/{assetId}', 'assets_show');
+            Route::post('/assets/{impactId}', 'assets_store')->middleware('auth:sanctum');
             // Route::put('/assets/{assetId}', 'assets_update');//->middleware('auth:sanctum');
-            Route::delete('assets/{assetId}', 'assets_destroy'); //->middleware('auth:sanctum');
+            Route::delete('/assets/{assetId}', 'assets_destroy')->middleware('auth:sanctum');
+
+            //Reports
+            Route::get('/reports/{impactId}', 'report_index');
+            Route::get('/reports/{impactId}/{reportId}', 'report_show');//Download
+            Route::post('/reports/{impactId}', 'report_store')->middleware('auth:sanctum');
+            // Route::put('/assets/{assetId}', 'assets_update');//->middleware('auth:sanctum');
+            Route::delete('/reports/{reportId}', 'report_destroy')->middleware('auth:sanctum');
         });
     });
 
@@ -245,10 +281,11 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/{careerId}/applications', 'applications_index');
             Route::get('/applications/{applicationId}', 'applications_show');
+            Route::get('/applications/{applicationId}/download', 'applications_download')->middleware('auth:sanctum');
             Route::post('/{careerId}/applications', 'applications_store'); //->middleware('auth:sanctum');
+            Route::post('/applications/volunteer', 'application_store'); //->middleware('auth:sanctum');
             Route::put('/applications/{applicationId}', 'applications_update')->middleware('auth:sanctum');
             Route::delete('/applications/{applicationId}', 'applications_destroy')->middleware('auth:sanctum');
         });
     });
-    
 });

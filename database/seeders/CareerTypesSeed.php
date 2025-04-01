@@ -15,21 +15,28 @@ class CareerTypesSeed extends Seeder
     {
         //
 
-        $careerVol = [
-            'career_type_id'=>uuid_create(),
-            'title'=>'Volunteer',
-            'type'=>0,
-        ];
+        // $careerVol = [
+        //     'career_type_id'=>uuid_create(),
+        //     'title'=>'Volunteer',
+        //     'type'=>0,
+        // ];
 
-        $careerEmp = [
+        // $careerEmp = [
+        //     'career_type_id'=>uuid_create(),
+        //     'title'=>'Employment',
+        //     'type'=>1,
+        // ];
+
+        $careerIntern = [
             'career_type_id'=>uuid_create(),
-            'title'=>'Employment',
-            'type'=>1,
+            'title'=>'Internship',
+            'type'=>2,
         ];
 
         $cts = [
-            $careerVol,
-            $careerEmp
+            // $careerVol,
+            // $careerEmp
+            $careerIntern
         ];
 
 

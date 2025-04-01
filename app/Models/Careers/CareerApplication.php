@@ -16,6 +16,7 @@ class CareerApplication extends Model
     protected $fillable = [
         'career_id',
         'avatar_url',
+        'cv_url',
         'email',
         'firstname',
         'lastname',
