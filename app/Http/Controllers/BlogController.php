@@ -37,9 +37,6 @@ class BlogController extends Controller
                 $blogs = $blogs->where('is_archived', '=', false);
             }
             
-
-
-
             //dump($isArchived);
         }
         $limit = $request->query('limit');

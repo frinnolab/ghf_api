@@ -30,34 +30,34 @@ class PublicationsController extends Controller
 
 
 
+
         //Format Response
         foreach ($data as $value) {
             //get asset
 
             $pubAsset = PublicationAsset::where('publish_id', '=', $value->publish_id)->first();
 
-            if ($pubAsset == null) {
-                continue;
-            }
-
             $filePath = null;
-
-            if ($pubAsset->asset_url) {
-                $filePath = asset(Storage::url($pubAsset->asset_url));
+            if ($pubAsset != null) {
+                //continue;
+                if ($pubAsset->asset_url) {
+                    $filePath = asset(Storage::url($pubAsset->asset_url));
+                }
             }
-
-
             $d = [
                 "publishId" => $value->publish_id,
                 "title" => $value->title,
                 "description" => $value->description,
                 "publishType" => $value->publish_type,
                 "publishDate" => $value->publish_date,
-                "assetUrl"=>$filePath,
+                "assetUrl" => $filePath,
                 "authorId" => $value->author_id
             ];
             array_push($response, $d);
         }
+
+        //dump($response);
+
 
         return response($response, Response::HTTP_OK);
     }
